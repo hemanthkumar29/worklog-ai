@@ -1,6 +1,6 @@
 use app_lib::ai::{AIStructuredOutput, DeterministicNLPEngine};
 use app_lib::database::{
-    migrations::run_migrations, ActivityFilter, ActivityRepository, CreateActivityInput,
+    migrations::run_migrations, ActivityRepository, CreateActivityInput,
     CreateProjectInput, ExcelRepository, ProjectRepository, SaveFieldMappingInput,
     SaveTemplateInput, SettingsRepository,
 };
