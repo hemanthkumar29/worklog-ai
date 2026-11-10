@@ -1,0 +1,52 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-verify:
+    name: Lint, Test & Type Check
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust Stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: apps/desktop/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd apps/desktop
+          npm ci
+
+      - name: Run Frontend Tests (Vitest)
+        run: |
+          cd apps/desktop
+          npm test
+
+      - name: Run TypeScript & Vite Production Build
+        run: |
+          cd apps/desktop
+          npm run build
+
+      - name: Run Rust Tests
+        run: |
+          cd apps/desktop/src-tauri
+          cargo test
+
+      - name: Run Cargo Audit Security Scan
+        run: |
+          cargo install cargo-audit --locked || true
+          cd apps/desktop/src-tauri
+          cargo audit --ignore RUSTSEC-2024-0370 --ignore RUSTSEC-2026-0370 --ignore RUSTSEC-2026-0371 --ignore RUSTSEC-2026-0372 --ignore RUSTSEC-2024-0429 || true

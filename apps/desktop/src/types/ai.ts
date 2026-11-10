@@ -1,13 +1,20 @@
 export type AIEngineType = "LOCAL_GGUF" | "DETERMINISTIC_NLP" | "HYBRID";
 
 export interface HardwareProfile {
-  total_memory_bytes: number;
-  available_memory_bytes: number;
-  cpu_cores: number;
-  cpu_architecture: string;
-  has_metal_support: boolean;
-  has_avx2_support: boolean;
-  recommended_engine: string;
+  totalMemoryBytes?: number;
+  total_memory_bytes?: number;
+  availableMemoryBytes?: number;
+  available_memory_bytes?: number;
+  cpuCores?: number;
+  cpu_cores?: number;
+  cpuArchitecture?: string;
+  cpu_architecture?: string;
+  hasMetalSupport?: boolean;
+  has_metal_support?: boolean;
+  hasAvx2Support?: boolean;
+  has_avx2_support?: boolean;
+  recommendedEngine?: string;
+  recommended_engine?: string;
 }
 
 export interface AIModelStatus {

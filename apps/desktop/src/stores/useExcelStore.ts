@@ -105,7 +105,11 @@ export const useExcelStore = create<ExcelState>((set, get) => ({
       const newMappings = { ...get().currentMappings };
 
       for (const s of suggestions) {
-        newMappings[s.worklog_field as StandardWorkLogField] = s.excel_column_index;
+        const field = (s.worklogField || s.worklog_field) as StandardWorkLogField | undefined;
+        const colIdx = s.excelColumnIndex ?? s.excel_column_index;
+        if (field && colIdx !== undefined && colIdx !== null) {
+          newMappings[field] = colIdx;
+        }
       }
 
       set({ currentMappings: newMappings });

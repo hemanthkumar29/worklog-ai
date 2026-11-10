@@ -24,10 +24,16 @@ export interface AppSettings {
 }
 
 export interface DatabaseStats {
-  total_activities: number;
-  total_projects: number;
-  total_excel_connections: number;
-  db_size_bytes: number;
-  db_path: string;
-  backup_dir: string;
+  totalActivities?: number;
+  total_activities?: number;
+  totalProjects?: number;
+  total_projects?: number;
+  totalExcelConnections?: number;
+  total_excel_connections?: number;
+  dbSizeBytes?: number;
+  db_size_bytes?: number;
+  dbPath?: string;
+  db_path?: string;
+  backupDir?: string;
+  backup_dir?: string;
 }

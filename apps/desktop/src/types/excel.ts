@@ -20,11 +20,15 @@ export interface ExcelWorkbookInspection {
 export type WorkbookInspection = ExcelWorkbookInspection;
 
 export interface SuggestedMapping {
-  worklog_field: string;
-  excel_column_name: string;
-  excel_column_index: number;
+  worklogField?: string;
+  worklog_field?: string;
+  excelColumnName?: string;
+  excel_column_name?: string;
+  excelColumnIndex?: number;
+  excel_column_index?: number;
   confidence: number;
-  is_required: boolean;
+  isRequired?: boolean;
+  is_required?: boolean;
 }
 
 export type StandardWorkLogField =

@@ -123,7 +123,7 @@ export const SettingsView: React.FC = () => {
                 System RAM
               </span>
               <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                {(hardware.total_memory_bytes / (1024 * 1024 * 1024)).toFixed(1)} GB
+                {(((hardware.totalMemoryBytes ?? hardware.total_memory_bytes ?? 0) / (1024 * 1024 * 1024))).toFixed(1)} GB
               </p>
             </div>
 
@@ -132,7 +132,7 @@ export const SettingsView: React.FC = () => {
                 CPU Cores
               </span>
               <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                {hardware.cpu_cores} Cores ({hardware.cpu_architecture})
+                {hardware.cpuCores ?? hardware.cpu_cores ?? 0} Cores ({hardware.cpuArchitecture ?? hardware.cpu_architecture ?? "Unknown"})
               </p>
             </div>
 
@@ -141,9 +141,9 @@ export const SettingsView: React.FC = () => {
                 Hardware Acceleration
               </span>
               <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                {hardware.has_metal_support
+                {(hardware.hasMetalSupport ?? hardware.has_metal_support)
                   ? "Apple Metal GPU"
-                  : hardware.has_avx2_support
+                  : (hardware.hasAvx2Support ?? hardware.has_avx2_support)
                   ? "AVX2 SIMD"
                   : "Standard CPU"}
               </p>
@@ -202,13 +202,13 @@ export const SettingsView: React.FC = () => {
               <div>
                 <span className="text-slate-400">Database Path: </span>
                 <span className="text-slate-800 dark:text-slate-200 select-all">
-                  {dbStats.db_path}
+                  {dbStats.dbPath ?? dbStats.db_path}
                 </span>
               </div>
               <div>
                 <span className="text-slate-400">Backups Directory: </span>
                 <span className="text-slate-800 dark:text-slate-200 select-all">
-                  {dbStats.backup_dir}
+                  {dbStats.backupDir ?? dbStats.backup_dir}
                 </span>
               </div>
             </div>
@@ -217,19 +217,19 @@ export const SettingsView: React.FC = () => {
               <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-center">
                 <span className="text-[10px] text-slate-400 uppercase">Activities</span>
                 <p className="text-base font-bold text-slate-900 dark:text-slate-100">
-                  {dbStats.total_activities}
+                  {dbStats.totalActivities ?? dbStats.total_activities ?? 0}
                 </p>
               </div>
               <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-center">
                 <span className="text-[10px] text-slate-400 uppercase">Projects</span>
                 <p className="text-base font-bold text-slate-900 dark:text-slate-100">
-                  {dbStats.total_projects}
+                  {dbStats.totalProjects ?? dbStats.total_projects ?? 0}
                 </p>
               </div>
               <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-center">
                 <span className="text-[10px] text-slate-400 uppercase">File Size</span>
                 <p className="text-base font-bold text-slate-900 dark:text-slate-100">
-                  {(dbStats.db_size_bytes / 1024).toFixed(1)} KB
+                  {(((dbStats.dbSizeBytes ?? dbStats.db_size_bytes ?? 0) / 1024)).toFixed(1)} KB
                 </p>
               </div>
             </div>

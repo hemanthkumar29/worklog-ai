@@ -19,5 +19,16 @@ export default defineConfig({
     target: "esnext",
     minify: "esbuild",
     sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom"],
+          "vendor-icons": ["lucide-react"],
+          "vendor-pdf": ["jspdf", "html2canvas"],
+          "vendor-utils": ["date-fns", "clsx", "tailwind-merge", "zustand", "papaparse"],
+        },
+      },
+    },
   },
 });
