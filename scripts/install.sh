@@ -32,8 +32,9 @@ echo "4. Unmounting disk image..."
 hdiutil detach "${MOUNT_DIR}" -quiet || true
 rm -rf "${TEMP_DIR}"
 
-echo "5. Applying security authorization (removing quarantine attribute)..."
-xattr -cr "/Applications/WorkLog AI.app"
+echo "5. Applying security authorization (removing quarantine attribute & sealing signature)..."
+xattr -cr "/Applications/WorkLog AI.app" 2>/dev/null || true
+codesign --force --deep --sign - "/Applications/WorkLog AI.app" 2>/dev/null || true
 
 echo "=================================================="
 echo "Installation successful."

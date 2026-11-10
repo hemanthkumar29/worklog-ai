@@ -23,6 +23,12 @@
         "center": true,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
+        "transparent": true,
+        "windowEffects": {
+          "effects": ["hudWindow", "sidebar"],
+          "state": "active",
+          "radius": 12.0
+        },
         "visible": true
       },
       {
@@ -37,6 +43,11 @@
         "alwaysOnTop": true,
         "decorations": false,
         "transparent": true,
+        "windowEffects": {
+          "effects": ["hudWindow", "popover"],
+          "state": "active",
+          "radius": 16.0
+        },
         "skipTaskbar": true,
         "visible": false
       }

@@ -36,6 +36,11 @@ echo "Copying ${APP_NAME}.app..."
 cp -R "${APP_SOURCE}" "${STAGING_DIR}/${APP_NAME}.app"
 ln -s /Applications "${STAGING_DIR}/Applications"
 
+# Sign and seal the staged application bundle
+echo "Sealing and signing ${APP_NAME}.app bundle with ad-hoc signature..."
+codesign --force --deep --sign - "${STAGING_DIR}/${APP_NAME}.app"
+codesign -vvv --deep --strict "${STAGING_DIR}/${APP_NAME}.app"
+
 # 3. Create Gatekeeper Authorization Helper Script
 cat << 'EOF' > "${STAGING_DIR}/Authorize_App.command"
 #!/usr/bin/env bash
@@ -44,15 +49,17 @@ echo "=========================================================="
 echo "         WorkLog AI - macOS Gatekeeper Authorizer         "
 echo "=========================================================="
 echo ""
-echo "Removing quarantine flags from WorkLog AI..."
+echo "Authorizing WorkLog AI for local execution..."
 
 if [ -d "/Applications/WorkLog AI.app" ]; then
   xattr -rd com.apple.quarantine "/Applications/WorkLog AI.app" 2>/dev/null || true
   xattr -cr "/Applications/WorkLog AI.app" 2>/dev/null || true
+  codesign --force --deep --sign - "/Applications/WorkLog AI.app" 2>/dev/null || true
   echo "Successfully authorized /Applications/WorkLog AI.app!"
 elif [ -d "${DIR}/WorkLog AI.app" ]; then
   xattr -rd com.apple.quarantine "${DIR}/WorkLog AI.app" 2>/dev/null || true
   xattr -cr "${DIR}/WorkLog AI.app" 2>/dev/null || true
+  codesign --force --deep --sign - "${DIR}/WorkLog AI.app" 2>/dev/null || true
   echo "Successfully authorized WorkLog AI.app in current directory!"
 fi
 
