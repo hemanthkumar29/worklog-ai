@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use sysinfo::System;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HardwareProfileDto {
     pub total_memory_bytes: u64,
     pub available_memory_bytes: u64,

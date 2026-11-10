@@ -2,6 +2,7 @@ use rusqlite::{params, Connection, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserProfileDto {
     pub id: String,
     pub display_name: String,
@@ -14,6 +15,7 @@ pub struct UserProfileDto {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateUserProfileInput {
     pub display_name: Option<String>,
     pub date_format: Option<String>,
@@ -22,6 +24,7 @@ pub struct UpdateUserProfileInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DatabaseStatsDto {
     pub total_activities: i64,
     pub total_projects: i64,

@@ -2,6 +2,7 @@ use rusqlite::{params, Connection, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ActivityDto {
     pub id: String,
     pub project_id: String,
@@ -24,6 +25,7 @@ pub struct ActivityDto {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateActivityInput {
     pub project_id: String,
     pub activity_date: String,
@@ -40,6 +42,7 @@ pub struct CreateActivityInput {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateActivityInput {
     pub id: String,
     pub project_id: Option<String>,
@@ -58,6 +61,7 @@ pub struct UpdateActivityInput {
 }
 
 #[derive(Debug, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct ActivityFilter {
     pub project_id: Option<String>,
     pub search_query: Option<String>,

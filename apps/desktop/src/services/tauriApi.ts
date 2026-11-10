@@ -31,7 +31,22 @@ export interface ActivityFilterParams {
 export const tauriApi = {
   // Activities
   createActivity: async (input: CreateActivityInput): Promise<Activity> => {
-    return await invoke("create_activity", { input });
+    return await invoke("create_activity", {
+      input: {
+        projectId: input.projectId,
+        activityDate: input.activityDate,
+        rawInput: input.rawInput,
+        activityTitle: input.activityTitle,
+        enhancedDescription: input.enhancedDescription,
+        activityType: input.activityType,
+        status: input.status,
+        timeSpentMinutes: input.timeSpentMinutes ?? null,
+        tasks: input.tasks,
+        technologies: input.technologies,
+        challenges: input.challenges,
+        nextSteps: input.nextSteps,
+      },
+    });
   },
 
   getActivity: async (id: string): Promise<Activity | null> => {
@@ -41,12 +56,12 @@ export const tauriApi = {
   listActivities: async (filter: ActivityFilterParams = {}): Promise<Activity[]> => {
     return await invoke("list_activities", {
       filter: {
-        project_id: filter.projectId || null,
-        search_query: filter.searchQuery || null,
-        start_date: filter.startDate || null,
-        end_date: filter.endDate || null,
+        projectId: filter.projectId || null,
+        searchQuery: filter.searchQuery || null,
+        startDate: filter.startDate || null,
+        endDate: filter.endDate || null,
         status: filter.status || null,
-        sync_status: filter.syncStatus || null,
+        syncStatus: filter.syncStatus || null,
         limit: filter.limit || null,
         offset: filter.offset || null,
       },
@@ -54,7 +69,24 @@ export const tauriApi = {
   },
 
   updateActivity: async (input: UpdateActivityInput): Promise<Activity | null> => {
-    return await invoke("update_activity", { input });
+    return await invoke("update_activity", {
+      input: {
+        id: input.id,
+        projectId: input.project_id || (input as any).projectId || null,
+        activityDate: input.activity_date || (input as any).activityDate || null,
+        activityTitle: input.activity_title || (input as any).activityTitle || null,
+        enhancedDescription: input.enhanced_description || (input as any).enhancedDescription || null,
+        activityType: input.activity_type || (input as any).activityType || null,
+        status: input.status || null,
+        timeSpentMinutes: input.time_spent_minutes ?? (input as any).timeSpentMinutes ?? null,
+        reviewStatus: input.review_status || (input as any).reviewStatus || null,
+        syncStatus: input.sync_status || (input as any).syncStatus || null,
+        tasks: input.tasks || null,
+        technologies: input.technologies || null,
+        challenges: input.challenges || null,
+        nextSteps: input.next_steps || (input as any).nextSteps || null,
+      },
+    });
   },
 
   deleteActivity: async (id: string): Promise<boolean> => {
@@ -67,13 +99,13 @@ export const tauriApi = {
       input: {
         name: input.name,
         description: input.description,
-        client_name: input.clientName || null,
+        clientName: input.clientName || null,
         technologies: input.technologies,
-        start_date: input.startDate || null,
-        end_date: input.endDate || null,
+        startDate: input.startDate || null,
+        endDate: input.endDate || null,
         status: input.status || "ACTIVE",
-        excel_connection_id: input.excelConnectionId || null,
-        default_worksheet: input.defaultWorksheet || null,
+        excelConnectionId: input.excelConnectionId || null,
+        defaultWorksheet: input.defaultWorksheet || null,
       },
     });
   },
@@ -92,14 +124,14 @@ export const tauriApi = {
         id: input.id,
         name: input.name || null,
         description: input.description || null,
-        client_name: input.clientName || null,
+        clientName: input.clientName || null,
         technologies: input.technologies || null,
-        start_date: input.startDate || null,
-        end_date: input.endDate || null,
+        startDate: input.startDate || null,
+        endDate: input.endDate || null,
         status: input.status || null,
-        excel_connection_id: input.excelConnectionId || null,
-        default_worksheet: input.defaultWorksheet || null,
-        is_archived: input.isArchived !== undefined ? input.isArchived : null,
+        excelConnectionId: input.excelConnectionId || null,
+        defaultWorksheet: input.defaultWorksheet || null,
+        isArchived: input.isArchived !== undefined ? input.isArchived : null,
       },
     });
   },
@@ -123,20 +155,31 @@ export const tauriApi = {
     worksheetName: string;
     headerRowIndex: number;
     mappings: Array<{
-      worklog_field: string;
-      excel_column_name: string;
-      excel_column_index: number;
-      is_required: boolean;
+      worklogField?: string;
+      worklog_field?: string;
+      excelColumnName?: string;
+      excel_column_name?: string;
+      excelColumnIndex?: number;
+      excel_column_index?: number;
+      isRequired?: boolean;
+      is_required?: boolean;
+      defaultValue?: string;
       default_value?: string;
     }>;
   }): Promise<ExcelTemplate> => {
     return await invoke("save_excel_template", {
       input: {
-        excel_connection_id: params.excelConnectionId,
+        excelConnectionId: params.excelConnectionId,
         name: params.name,
-        worksheet_name: params.worksheetName,
-        header_row_index: params.headerRowIndex,
-        mappings: params.mappings,
+        worksheetName: params.worksheetName,
+        headerRowIndex: params.headerRowIndex,
+        mappings: params.mappings.map((m: any) => ({
+          worklogField: m.worklogField || m.worklog_field,
+          excelColumnName: m.excelColumnName || m.excel_column_name,
+          excelColumnIndex: m.excelColumnIndex ?? m.excel_column_index,
+          isRequired: Boolean(m.isRequired ?? m.is_required ?? false),
+          defaultValue: m.defaultValue || m.default_value || null,
+        })),
       },
     });
   },
@@ -177,10 +220,10 @@ export const tauriApi = {
   }): Promise<UserProfile> => {
     return await invoke("update_user_profile", {
       input: {
-        display_name: input.displayName || null,
-        date_format: input.dateFormat || null,
-        default_project_id: input.defaultProjectId || null,
-        default_excel_connection_id: input.defaultExcelConnectionId || null,
+        displayName: input.displayName || null,
+        dateFormat: input.dateFormat || null,
+        defaultProjectId: input.defaultProjectId || null,
+        defaultExcelConnectionId: input.defaultExcelConnectionId || null,
       },
     });
   },

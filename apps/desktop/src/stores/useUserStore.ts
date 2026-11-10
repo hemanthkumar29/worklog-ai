@@ -19,7 +19,21 @@ export const useUserStore = create<UserState>((set) => ({
   loadProfile: async () => {
     set({ isLoading: true, error: null });
     try {
-      const profile = await tauriApi.getUserProfile();
+      const raw: any = await tauriApi.getUserProfile();
+      if (!raw) {
+        set({ profile: null, isLoading: false });
+        return;
+      }
+      const profile: UserProfile = {
+        id: raw.id,
+        displayName: raw.displayName || raw.display_name || "Employee",
+        dateFormat: raw.dateFormat || raw.date_format || "YYYY-MM-DD",
+        defaultProjectId: raw.defaultProjectId || raw.default_project_id || undefined,
+        defaultExcelConnectionId: raw.defaultExcelConnectionId || raw.default_excel_connection_id || undefined,
+        isOnboarded: Boolean(raw.isOnboarded ?? raw.is_onboarded ?? false),
+        createdAt: raw.createdAt || raw.created_at || "",
+        updatedAt: raw.updatedAt || raw.updated_at || "",
+      };
       set({ profile, isLoading: false });
     } catch (err: any) {
       set({ error: err?.toString() || "Failed to load user profile", isLoading: false });
@@ -28,12 +42,22 @@ export const useUserStore = create<UserState>((set) => ({
 
   updateProfile: async (data) => {
     try {
-      const updated = await tauriApi.updateUserProfile({
+      const raw: any = await tauriApi.updateUserProfile({
         displayName: data.displayName,
         dateFormat: data.dateFormat,
         defaultProjectId: data.defaultProjectId,
         defaultExcelConnectionId: data.defaultExcelConnectionId,
       });
+      const updated: UserProfile = {
+        id: raw.id,
+        displayName: raw.displayName || raw.display_name || "Employee",
+        dateFormat: raw.dateFormat || raw.date_format || "YYYY-MM-DD",
+        defaultProjectId: raw.defaultProjectId || raw.default_project_id || undefined,
+        defaultExcelConnectionId: raw.defaultExcelConnectionId || raw.default_excel_connection_id || undefined,
+        isOnboarded: Boolean(raw.isOnboarded ?? raw.is_onboarded ?? false),
+        createdAt: raw.createdAt || raw.created_at || "",
+        updatedAt: raw.updatedAt || raw.updated_at || "",
+      };
       set({ profile: updated });
     } catch (err: any) {
       set({ error: err?.toString() || "Failed to update profile" });

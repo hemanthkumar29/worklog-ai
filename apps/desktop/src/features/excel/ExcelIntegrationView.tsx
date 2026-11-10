@@ -7,7 +7,9 @@ import {
   RefreshCw,
   ShieldCheck,
   Table,
+  FolderOpen,
 } from "lucide-react";
+import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -36,6 +38,21 @@ export const ExcelIntegrationView: React.FC = () => {
     type: "success" | "error";
     message: string;
   } | null>(null);
+
+  const handleBrowseFile = async () => {
+    try {
+      const selected = await openFileDialog({
+        multiple: false,
+        filters: [{ name: "Excel Workbook", extensions: ["xlsx"] }],
+      });
+      if (selected && typeof selected === "string") {
+        setInputFilePath(selected);
+        setNotification(null);
+      }
+    } catch (err) {
+      console.error("Browse file error", err);
+    }
+  };
 
   useEffect(() => {
     loadConnections();
@@ -153,6 +170,13 @@ export const ExcelIntegrationView: React.FC = () => {
               onChange={(e) => setInputFilePath(e.target.value)}
               className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
+            <Button
+              variant="secondary"
+              onClick={handleBrowseFile}
+              icon={<FolderOpen className="w-4 h-4" />}
+            >
+              Browse...
+            </Button>
             <Button
               onClick={handleInspect}
               isLoading={isInspecting}

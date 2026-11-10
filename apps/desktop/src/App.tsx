@@ -63,7 +63,8 @@ export const App: React.FC = () => {
   }
 
   // Show Welcome Wizard on first launch
-  if (profile && !profile.isOnboarded) {
+  const isUserOnboarded = Boolean(profile?.isOnboarded ?? (profile as any)?.is_onboarded ?? false);
+  if (profile && !isUserOnboarded) {
     return <WelcomeWizard onComplete={() => loadProfile()} />;
   }
 

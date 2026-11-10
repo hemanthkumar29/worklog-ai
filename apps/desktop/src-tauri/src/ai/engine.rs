@@ -2,6 +2,7 @@ use super::fallback::{AIStructuredOutput, DeterministicNLPEngine};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ActivityContextItem {
     pub title: String,
     pub description: String,
@@ -9,6 +10,7 @@ pub struct ActivityContextItem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EnhancementRequest {
     pub raw_input: String,
     pub project_name: Option<String>,

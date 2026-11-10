@@ -39,3 +39,4 @@ echo "=================================================="
 echo "Installation successful."
 echo "WorkLog AI is now available in your Applications folder."
 echo "=================================================="
+

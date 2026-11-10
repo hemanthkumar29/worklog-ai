@@ -2,6 +2,7 @@ use rusqlite::{params, Connection, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ExcelFieldMappingDto {
     pub id: String,
     pub template_id: String,
@@ -13,6 +14,7 @@ pub struct ExcelFieldMappingDto {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ExcelTemplateDto {
     pub id: String,
     pub excel_connection_id: String,
@@ -25,6 +27,7 @@ pub struct ExcelTemplateDto {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ExcelConnectionDto {
     pub id: String,
     pub name: String,
@@ -37,6 +40,7 @@ pub struct ExcelConnectionDto {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SaveFieldMappingInput {
     pub worklog_field: String,
     pub excel_column_name: String,
@@ -46,6 +50,7 @@ pub struct SaveFieldMappingInput {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SaveTemplateInput {
     pub excel_connection_id: String,
     pub name: String,

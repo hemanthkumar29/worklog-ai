@@ -5,6 +5,7 @@ use std::fs::File;
 use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SheetInfoDto {
     pub name: String,
     pub row_count: usize,
@@ -15,6 +16,7 @@ pub struct SheetInfoDto {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WorkbookInspectionDto {
     pub file_path: String,
     pub file_name: String,

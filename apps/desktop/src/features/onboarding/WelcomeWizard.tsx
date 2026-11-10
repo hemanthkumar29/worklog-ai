@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Sparkles, ArrowRight, CheckCircle2, FolderPlus, FileSpreadsheet } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, FolderPlus, FileSpreadsheet, FolderOpen } from "lucide-react";
+import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
@@ -13,7 +14,7 @@ interface WelcomeWizardProps {
 
 export const WelcomeWizard: React.FC<WelcomeWizardProps> = ({ onComplete }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const { profile, updateProfile, setOnboarded } = useUserStore();
+  const { profile, updateProfile, setOnboarded, loadProfile } = useUserStore();
   const { createProject } = useProjectStore();
   const { inspectFile } = useExcelStore();
 
@@ -56,18 +57,38 @@ export const WelcomeWizard: React.FC<WelcomeWizardProps> = ({ onComplete }) => {
     setStep(3);
   };
 
-  const handleFinish = async () => {
-    if (excelPath.trim()) {
+  const handleBrowseFile = async () => {
+    try {
+      const selected = await openFileDialog({
+        multiple: false,
+        filters: [{ name: "Excel Workbook", extensions: ["xlsx"] }],
+      });
+      if (selected && typeof selected === "string") {
+        setExcelPath(selected);
+        setExcelError(null);
+      }
+    } catch (err) {
+      console.error("File selection error", err);
+    }
+  };
+
+  const handleFinish = async (skipExcel: boolean = false) => {
+    if (!skipExcel && excelPath.trim()) {
       setIsInspecting(true);
       try {
         await inspectFile(excelPath.trim());
       } catch (err: any) {
-        setExcelError(err?.toString() || "Failed to inspect file, continuing anyway");
+        setExcelError(
+          err?.toString() || "Failed to inspect Excel file. Please verify the path or select 'Skip for Now'."
+        );
+        setIsInspecting(false);
+        return;
       } finally {
         setIsInspecting(false);
       }
     }
     await setOnboarded(true);
+    await loadProfile();
     onComplete();
   };
 
@@ -215,22 +236,46 @@ export const WelcomeWizard: React.FC<WelcomeWizardProps> = ({ onComplete }) => {
             </div>
 
             <div className="space-y-3 pt-2">
-              <Input
-                label="Excel Workbook Path (.xlsx)"
-                placeholder="/Users/username/Documents/Daily_Work_Log.xlsx"
-                value={excelPath}
-                onChange={(e) => {
-                  setExcelPath(e.target.value);
-                  setExcelError(null);
-                }}
-                helperText="Existing formatting, formulas, styles, and other sheets are 100% preserved."
-                error={excelError || undefined}
-              />
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Excel Workbook Path (.xlsx)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="/Users/username/Documents/Daily_Work_Log.xlsx"
+                    value={excelPath}
+                    onChange={(e) => {
+                      setExcelPath(e.target.value);
+                      setExcelError(null);
+                    }}
+                    className={`flex-1 rounded-lg border bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 ${
+                      excelError
+                        ? "border-rose-500 focus:ring-rose-500"
+                        : "border-slate-300 dark:border-slate-700 focus:ring-brand-500"
+                    }`}
+                  />
+                  <Button
+                    variant="secondary"
+                    onClick={handleBrowseFile}
+                    icon={<FolderOpen className="w-4 h-4" />}
+                  >
+                    Browse...
+                  </Button>
+                </div>
+                {excelError ? (
+                  <p className="text-xs text-rose-500 mt-1">{excelError}</p>
+                ) : (
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Existing formatting, formulas, styles, and other sheets are 100% preserved.
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 text-xs text-slate-600 dark:text-slate-400 space-y-1">
               <p className="font-semibold text-slate-800 dark:text-slate-200">
-                🔒 Safe Synchronization Guarantee:
+                Safe Synchronization Guarantee:
               </p>
               <ul className="list-disc pl-4 space-y-0.5">
                 <li>Automated timestamped backup created before any file modification.</li>
@@ -239,18 +284,38 @@ export const WelcomeWizard: React.FC<WelcomeWizardProps> = ({ onComplete }) => {
               </ul>
             </div>
 
-            <div className="pt-6 flex justify-between">
+            <div className="pt-6 flex items-center justify-between">
               <Button variant="ghost" onClick={() => setStep(2)}>
                 Back
               </Button>
-              <Button
-                variant="primary"
-                onClick={handleFinish}
-                isLoading={isInspecting}
-                icon={<CheckCircle2 className="w-4 h-4" />}
-              >
-                {excelPath.trim() ? "Connect & Finish Setup" : "Skip & Finish Setup"}
-              </Button>
+              <div className="flex items-center gap-2">
+                {excelPath.trim() ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleFinish(true)}
+                    >
+                      Skip for Now
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => handleFinish(false)}
+                      isLoading={isInspecting}
+                      icon={<CheckCircle2 className="w-4 h-4" />}
+                    >
+                      Connect & Finish Setup
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="primary"
+                    onClick={() => handleFinish(true)}
+                    icon={<CheckCircle2 className="w-4 h-4" />}
+                  >
+                    Skip & Finish Setup
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         )}
