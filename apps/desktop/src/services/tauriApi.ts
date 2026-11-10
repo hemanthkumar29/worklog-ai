@@ -243,4 +243,25 @@ export const tauriApi = {
   setSetting: async (key: string, value: string): Promise<boolean> => {
     return await invoke("set_setting", { key, value });
   },
+
+  // Window Management
+  toggleQuickCapture: async (): Promise<void> => {
+    return await invoke("toggle_quick_capture");
+  },
+
+  hideQuickCapture: async (): Promise<void> => {
+    return await invoke("hide_quick_capture");
+  },
+
+  showQuickCapture: async (): Promise<void> => {
+    return await invoke("show_quick_capture");
+  },
+
+  openDashboard: async (): Promise<void> => {
+    return await invoke("open_dashboard");
+  },
+
+  hideDashboard: async (): Promise<void> => {
+    return await invoke("hide_dashboard");
+  },
 };

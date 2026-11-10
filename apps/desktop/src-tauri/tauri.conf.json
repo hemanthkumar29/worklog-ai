@@ -20,7 +20,23 @@
         "minHeight": 640,
         "resizable": true,
         "fullscreen": false,
-        "center": true
+        "center": true,
+        "visible": true
+      },
+      {
+        "title": "WorkLog AI - Quick Capture",
+        "label": "quick-capture",
+        "url": "index.html?mode=popup",
+        "width": 680,
+        "height": 430,
+        "resizable": false,
+        "fullscreen": false,
+        "center": true,
+        "alwaysOnTop": true,
+        "decorations": false,
+        "transparent": true,
+        "skipTaskbar": true,
+        "visible": false
       }
     ],
     "security": {

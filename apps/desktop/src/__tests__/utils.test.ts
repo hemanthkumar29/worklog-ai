@@ -56,3 +56,4 @@ describe("Utility Logic & Schema Validation", () => {
     expect(validCategories).toContain("RESEARCH_AND_TESTING");
   });
 });
+

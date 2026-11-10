@@ -1,7 +1,8 @@
 import React from "react";
-import { FolderKanban, Moon, Sun } from "lucide-react";
+import { FolderKanban, Moon, Sun, Sparkles } from "lucide-react";
 import { useProjectStore } from "../../stores/useProjectStore";
 import { useUserStore } from "../../stores/useUserStore";
+import { tauriApi } from "../../services/tauriApi";
 
 interface HeaderProps {
   onOpenQuickCapture?: () => void;
@@ -40,13 +41,18 @@ export const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
-        {/* Global Shortcut Hint */}
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700/80">
-          <span className="text-slate-400">Shortcut:</span>
-          <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-[10px] font-mono shadow-2xs">
+        {/* Global Shortcut Quick Capture Trigger Button */}
+        <button
+          onClick={() => tauriApi.showQuickCapture()}
+          title="Open Floating Quick Capture Popup (⌘+Shift+Space)"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/60 dark:hover:bg-brand-900/60 text-brand-700 dark:text-brand-300 text-xs font-semibold border border-brand-200 dark:border-brand-800 transition-colors shadow-2xs cursor-pointer"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Quick Capture</span>
+          <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-brand-200 dark:border-brand-800 text-[10px] font-mono">
             ⌘+⇧+Space
           </kbd>
-        </div>
+        </button>
 
         {/* Theme Toggle */}
         <button

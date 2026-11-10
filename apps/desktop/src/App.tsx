@@ -3,6 +3,7 @@ import { Sidebar, NavTab } from "./components/layout/Sidebar";
 import { Header } from "./components/layout/Header";
 import { WelcomeWizard } from "./features/onboarding/WelcomeWizard";
 import { QuickCaptureView } from "./features/capture/QuickCaptureView";
+import { MinimalPopupView } from "./features/capture/MinimalPopupView";
 import { ActivityHistoryView } from "./features/activities/ActivityHistoryView";
 import { ProjectListView } from "./features/projects/ProjectListView";
 import { ExcelIntegrationView } from "./features/excel/ExcelIntegrationView";
@@ -50,6 +51,14 @@ export const App: React.FC = () => {
       document.documentElement.classList.remove("dark");
     }
   };
+
+  // Mode detection: Minimal Quick Capture Popup vs Full Dashboard
+  const urlParams = new URLSearchParams(window.location.search);
+  const isPopupMode = urlParams.get("mode") === "popup";
+
+  if (isPopupMode) {
+    return <MinimalPopupView />;
+  }
 
   if (isUserLoading) {
     return (

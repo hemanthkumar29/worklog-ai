@@ -17,3 +17,4 @@ A clear and concise description of any alternative solutions or features you've 
 
 **Offline & Privacy Compliance**
 Confirm that this feature functions completely offline without requiring remote cloud servers or third-party telemetry.
+

@@ -27,3 +27,4 @@ If you discover a security vulnerability in WorkLog AI, please report it respons
 3. Include detailed steps to reproduce the issue, environment details (OS, architecture, app version), and potential impact.
 
 We will review reports within 48 hours and work with you on a coordinated disclosure and patch.
+

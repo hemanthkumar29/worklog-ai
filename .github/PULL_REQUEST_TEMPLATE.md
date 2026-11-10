@@ -15,3 +15,4 @@ Fixes #(issue)
 - [ ] Rust tests pass (`cargo test`)
 - [ ] Offline operation verified (no internet connection required)
 - [ ] Non-destructive Excel handling verified (existing sheets, styles, formulas preserved)
+
