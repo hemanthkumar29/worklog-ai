@@ -8,13 +8,10 @@ import {
   Edit2,
   Trash2,
   Archive,
+  Folder,
+  Building,
 } from "lucide-react";
-import { Button } from "../../components/ui/Button";
-import { Card } from "../../components/ui/Card";
-import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
-import { Input, Textarea } from "../../components/ui/Input";
-import { Select } from "../../components/ui/Select";
 import { useProjectStore } from "../../stores/useProjectStore";
 import { useExcelStore } from "../../stores/useExcelStore";
 import { Project, ProjectStatus } from "../../types";
@@ -24,7 +21,7 @@ export const ProjectListView: React.FC = () => {
   const { connections } = useExcelStore();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [showArchived, setShowArchived] = useState(false);
+  const [filterMode, setFilterMode] = useState<"all" | "active" | "archived">("active");
 
   // Create Project Modal
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -41,7 +38,9 @@ export const ProjectListView: React.FC = () => {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   const filteredProjects = projects.filter((p) => {
-    if (!showArchived && p.isArchived) return false;
+    if (filterMode === "active" && (p.isArchived || p.status === "ARCHIVED")) return false;
+    if (filterMode === "archived" && !p.isArchived && p.status !== "ARCHIVED") return false;
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchName = p.name.toLowerCase().includes(q);
@@ -52,6 +51,9 @@ export const ProjectListView: React.FC = () => {
     }
     return true;
   });
+
+  const activeCount = projects.filter((p) => !p.isArchived && p.status !== "ARCHIVED").length;
+  const archivedCount = projects.filter((p) => p.isArchived || p.status === "ARCHIVED").length;
 
   const handleCreate = async () => {
     if (!name.trim()) return;
@@ -108,276 +110,451 @@ export const ProjectListView: React.FC = () => {
     setDefaultWorksheet("");
   };
 
+  const folderColors = [
+    "from-[#007AFF] to-[#5856D6]",
+    "from-[#34C759] to-[#30B0C7]",
+    "from-[#FF9500] to-[#FF3B30]",
+    "from-[#AF52DE] to-[#5856D6]",
+  ];
+
   return (
-    <div className="space-y-6 pb-12 select-none">
-      {/* Header */}
+    <div className="space-y-6 pb-12 select-none animate-apple-in">
+      {/* Native macOS Sub-Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <FolderKanban className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-            Projects
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Manage projects, associate Excel templates, and organize work contexts.
+          <div className="flex items-center gap-2">
+            <h2 className="text-[17px] font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <FolderKanban className="w-5 h-5 text-[#007AFF] dark:text-[#0A84FF]" />
+              Projects
+            </h2>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-slate-500">
+              {projects.length} Total
+            </span>
+          </div>
+          <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">
+            Organize work contexts, associate Excel sheets, and track time allocations.
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} icon={<Plus className="w-4 h-4" />}>
-          New Project
-        </Button>
+
+        <button
+          onClick={() => setIsCreateOpen(true)}
+          className="macos-btn-primary self-start sm:self-auto cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>New Project</span>
+        </button>
       </div>
 
-      {/* Search & Tabs */}
+      {/* Filter and Search Bar (macOS NSSearchField + NSSegmentedControl) */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        {/* macOS Search Field */}
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search projects, clients, tech..."
+            placeholder="Search projects, client, tech..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="w-full pl-8.5 pr-3 py-1.5 text-[12px] rounded-md border border-black/15 dark:border-white/15 bg-white/90 dark:bg-black/30 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 focus:border-[#007AFF] transition-all"
           />
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 cursor-pointer self-start sm:self-auto">
-          <input
-            type="checkbox"
-            checked={showArchived}
-            onChange={(e) => setShowArchived(e.target.checked)}
-            className="rounded text-brand-600 focus:ring-brand-500"
-          />
-          Show archived projects
-        </label>
+        {/* macOS Segmented Switcher */}
+        <div className="macos-segmented self-start sm:self-auto">
+          <button
+            onClick={() => setFilterMode("active")}
+            className={`macos-segmented-item ${
+              filterMode === "active" ? "macos-segmented-item-active" : ""
+            }`}
+          >
+            Active ({activeCount})
+          </button>
+          <button
+            onClick={() => setFilterMode("all")}
+            className={`macos-segmented-item ${
+              filterMode === "all" ? "macos-segmented-item-active" : ""
+            }`}
+          >
+            All ({projects.length})
+          </button>
+          <button
+            onClick={() => setFilterMode("archived")}
+            className={`macos-segmented-item ${
+              filterMode === "archived" ? "macos-segmented-item-active" : ""
+            }`}
+          >
+            Archived ({archivedCount})
+          </button>
+        </div>
       </div>
 
       {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredProjects.map((proj) => (
-          <Card
-            key={proj.id}
-            className="flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-sm"
-          >
-            <div className="space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="font-semibold text-sm text-slate-900 dark:text-slate-100 leading-tight">
-                    {proj.name}
-                  </h3>
-                  {proj.clientName && (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                      Client: {proj.clientName}
-                    </p>
-                  )}
+      {filteredProjects.length === 0 ? (
+        <div className="macos-card p-12 text-center space-y-3">
+          <Folder className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto" />
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            No projects found
+          </h3>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            {searchQuery
+              ? "No projects match your current search query."
+              : "Get started by creating your first project context."}
+          </p>
+          {!searchQuery && (
+            <button
+              onClick={() => setIsCreateOpen(true)}
+              className="macos-btn-primary mt-2 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Project</span>
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredProjects.map((proj, idx) => (
+            <div
+              key={proj.id}
+              className="macos-card p-4.5 flex flex-col justify-between hover:border-[#007AFF]/40 dark:hover:border-[#007AFF]/50 transition-all duration-150 group"
+            >
+              <div className="space-y-3">
+                {/* Header: Folder Icon + Title + Status */}
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="flex items-start gap-2.5">
+                    <div
+                      className={`w-8 h-8 rounded-lg bg-gradient-to-tr ${
+                        folderColors[idx % folderColors.length]
+                      } text-white flex items-center justify-center shrink-0 shadow-sm`}
+                    >
+                      <Folder className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[13px] text-slate-900 dark:text-slate-100 leading-snug">
+                        {proj.name}
+                      </h3>
+                      {proj.clientName && (
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1 mt-0.5">
+                          <Building className="w-3 h-3 text-slate-400" />
+                          {proj.clientName}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                      proj.status === "ACTIVE"
+                        ? "bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158]"
+                        : proj.status === "COMPLETED"
+                        ? "bg-[#007AFF]/15 text-[#007AFF] dark:text-[#0A84FF]"
+                        : "bg-slate-500/15 text-slate-500"
+                    }`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                    {proj.status}
+                  </span>
                 </div>
-                <Badge
-                  variant={
-                    proj.status === "ACTIVE"
-                      ? "success"
-                      : proj.status === "COMPLETED"
-                      ? "info"
-                      : "neutral"
-                  }
-                  size="sm"
-                >
-                  {proj.status}
-                </Badge>
+
+                {/* Description */}
+                {proj.description && (
+                  <p className="text-[12px] text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                    {proj.description}
+                  </p>
+                )}
+
+                {/* Technologies */}
+                {proj.technologies && proj.technologies.length > 0 && (
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {proj.technologies.slice(0, 4).map((tech, tIdx) => (
+                      <span
+                        key={tIdx}
+                        className="px-2 py-0.5 rounded text-[10px] font-medium bg-black/[0.04] dark:bg-white/[0.08] text-slate-600 dark:text-slate-300 border border-black/[0.04] dark:border-white/[0.06]"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                    {proj.technologies.length > 4 && (
+                      <span className="text-[10px] text-slate-400 self-center">
+                        +{proj.technologies.length - 4}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {proj.description && (
-                <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
-                  {proj.description}
-                </p>
-              )}
-
-              {/* Technologies */}
-              {proj.technologies && proj.technologies.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {proj.technologies.slice(0, 4).map((tech, idx) => (
-                    <Badge key={idx} variant="neutral" size="sm">
-                      {tech}
-                    </Badge>
-                  ))}
-                  {proj.technologies.length > 4 && (
-                    <span className="text-[10px] text-slate-400 self-center">
-                      +{proj.technologies.length - 4} more
-                    </span>
-                  )}
+              {/* Metrics & Action Bar Footer */}
+              <div className="pt-3.5 mt-3.5 border-t border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1" title="Logged Activities">
+                    <ListTodo className="w-3.5 h-3.5 text-slate-400" />
+                    {proj.activityCount || 0}
+                  </span>
+                  <span className="flex items-center gap-1" title="Total Logged Hours">
+                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                    {((proj.totalTimeMinutes || 0) / 60).toFixed(1)}h
+                  </span>
                 </div>
-              )}
-            </div>
 
-            {/* Metrics & Actions Footer */}
-            <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1" title="Total Activities Logged">
-                  <ListTodo className="w-3.5 h-3.5 text-slate-400" />
-                  {proj.activityCount || 0}
-                </span>
-                <span className="flex items-center gap-1" title="Total Time Logged">
-                  <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  {((proj.totalTimeMinutes || 0) / 60).toFixed(1)}h
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setEditingProject(proj)}
-                  title="Edit Project"
-                  className="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleToggleArchive(proj)}
-                  title={proj.isArchived ? "Unarchive" : "Archive"}
-                  className="p-1 rounded text-slate-400 hover:text-amber-600"
-                >
-                  <Archive className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => deleteProject(proj.id)}
-                  title="Delete Project"
-                  className="p-1 rounded text-slate-400 hover:text-rose-600"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setEditingProject(proj)}
+                    title="Edit Project"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors macos-button-press cursor-pointer"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleToggleArchive(proj)}
+                    title={proj.isArchived ? "Unarchive" : "Archive"}
+                    className="p-1 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-500/10 transition-colors macos-button-press cursor-pointer"
+                  >
+                    <Archive className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => deleteProject(proj.id)}
+                    title="Delete Project"
+                    className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-500/10 transition-colors macos-button-press cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
-          </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Create Project Modal */}
+      {/* Create Project Sheet / Modal */}
       <Modal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
-        title="Create New Project"
-        description="Add a new project context for your work logs."
+        title="New Project"
+        description="Add a new project context for organizing activities and Excel sync."
         size="md"
       >
-        <div className="space-y-4">
-          <Input
-            label="Project Name"
-            placeholder="e.g. Mobile Banking App"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Textarea
-            label="Description"
-            placeholder="Brief description of project scope..."
-            rows={2}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          <Input
-            label="Client or Organization (Optional)"
-            placeholder="e.g. Acme FinTech"
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-          />
-          <Input
-            label="Technologies (comma-separated)"
-            placeholder="e.g. React Native, TypeScript, Node.js, AWS"
-            value={technologies}
-            onChange={(e) => setTechnologies(e.target.value)}
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="Start Date"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <Input
-              label="End Date"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+        <div className="space-y-3.5">
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Project Name
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Mobile Banking App"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="macos-input w-full"
             />
           </div>
 
-          <Select
-            label="Associated Excel Connection (Optional)"
-            value={excelConnectionId}
-            onChange={(e) => setExcelConnectionId(e.target.value)}
-            options={[
-              { value: "", label: "-- None / Default --" },
-              ...connections.map((c) => ({ value: c.id, label: c.name })),
-            ]}
-          />
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Description (Optional)
+            </label>
+            <textarea
+              placeholder="Brief description of the project scope and deliverables..."
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="macos-input w-full resize-none"
+            />
+          </div>
 
-          <div className="pt-4 flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setIsCreateOpen(false)}>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Client / Organization
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Acme FinTech"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                className="macos-input w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Technologies
+              </label>
+              <input
+                type="text"
+                placeholder="React, Swift, AWS"
+                value={technologies}
+                onChange={(e) => setTechnologies(e.target.value)}
+                className="macos-input w-full"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Start Date
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="macos-input w-full cursor-pointer"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Target End Date
+              </label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="macos-input w-full cursor-pointer"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Associated Excel Connection (Optional)
+            </label>
+            <select
+              value={excelConnectionId}
+              onChange={(e) => setExcelConnectionId(e.target.value)}
+              className="macos-input w-full cursor-pointer"
+            >
+              <option value="">-- None / Default --</option>
+              {connections.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="pt-4 border-t border-black/[0.08] dark:border-white/[0.08] flex items-center justify-end gap-2">
+            <button
+              onClick={() => setIsCreateOpen(false)}
+              className="macos-btn-secondary cursor-pointer"
+            >
               Cancel
-            </Button>
-            <Button onClick={handleCreate}>Create Project</Button>
+            </button>
+            <button
+              onClick={handleCreate}
+              disabled={!name.trim()}
+              className="macos-btn-primary cursor-pointer disabled:opacity-40"
+            >
+              Create Project
+            </button>
           </div>
         </div>
       </Modal>
 
-      {/* Edit Project Modal */}
+      {/* Edit Project Sheet / Modal */}
       {editingProject && (
         <Modal
           isOpen={!!editingProject}
           onClose={() => setEditingProject(null)}
           title="Edit Project"
-          description="Update project information."
+          description={`Update details for ${editingProject.name}.`}
           size="md"
         >
-          <div className="space-y-4">
-            <Input
-              label="Project Name"
-              value={editingProject.name}
-              onChange={(e) =>
-                setEditingProject({ ...editingProject, name: e.target.value })
-              }
-            />
-            <Textarea
-              label="Description"
-              rows={2}
-              value={editingProject.description}
-              onChange={(e) =>
-                setEditingProject({ ...editingProject, description: e.target.value })
-              }
-            />
-            <Input
-              label="Client Name"
-              value={editingProject.clientName || ""}
-              onChange={(e) =>
-                setEditingProject({ ...editingProject, clientName: e.target.value })
-              }
-            />
-            <Input
-              label="Technologies (comma-separated)"
-              value={editingProject.technologies?.join(", ") || ""}
-              onChange={(e) =>
-                setEditingProject({
-                  ...editingProject,
-                  technologies: e.target.value.split(",").map((t) => t.trim()).filter((t) => t.length > 0),
-                })
-              }
-            />
-            <Select
-              label="Status"
-              value={editingProject.status}
-              onChange={(e) =>
-                setEditingProject({
-                  ...editingProject,
-                  status: e.target.value as ProjectStatus,
-                })
-              }
-              options={[
-                { value: "ACTIVE", label: "Active" },
-                { value: "ON_HOLD", label: "On Hold" },
-                { value: "COMPLETED", label: "Completed" },
-                { value: "ARCHIVED", label: "Archived" },
-              ]}
-            />
-            <div className="pt-4 flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setEditingProject(null)}>
+          <div className="space-y-3.5">
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Project Name
+              </label>
+              <input
+                type="text"
+                value={editingProject.name}
+                onChange={(e) =>
+                  setEditingProject({ ...editingProject, name: e.target.value })
+                }
+                className="macos-input w-full"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Description
+              </label>
+              <textarea
+                rows={2}
+                value={editingProject.description || ""}
+                onChange={(e) =>
+                  setEditingProject({ ...editingProject, description: e.target.value })
+                }
+                className="macos-input w-full resize-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Client Name
+                </label>
+                <input
+                  type="text"
+                  value={editingProject.clientName || ""}
+                  onChange={(e) =>
+                    setEditingProject({ ...editingProject, clientName: e.target.value })
+                  }
+                  className="macos-input w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                  Status
+                </label>
+                <select
+                  value={editingProject.status}
+                  onChange={(e) =>
+                    setEditingProject({
+                      ...editingProject,
+                      status: e.target.value as ProjectStatus,
+                    })
+                  }
+                  className="macos-input w-full cursor-pointer"
+                >
+                  <option value="ACTIVE">Active</option>
+                  <option value="ON_HOLD">On Hold</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="ARCHIVED">Archived</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Technologies (comma-separated)
+              </label>
+              <input
+                type="text"
+                value={editingProject.technologies?.join(", ") || ""}
+                onChange={(e) =>
+                  setEditingProject({
+                    ...editingProject,
+                    technologies: e.target.value
+                      .split(",")
+                      .map((t) => t.trim())
+                      .filter((t) => t.length > 0),
+                  })
+                }
+                className="macos-input w-full"
+              />
+            </div>
+
+            <div className="pt-4 border-t border-black/[0.08] dark:border-white/[0.08] flex items-center justify-end gap-2">
+              <button
+                onClick={() => setEditingProject(null)}
+                className="macos-btn-secondary cursor-pointer"
+              >
                 Cancel
-              </Button>
-              <Button onClick={handleUpdate}>Save Changes</Button>
+              </button>
+              <button
+                onClick={handleUpdate}
+                disabled={!editingProject.name.trim()}
+                className="macos-btn-primary cursor-pointer disabled:opacity-40"
+              >
+                Save Changes
+              </button>
             </div>
           </div>
         </Modal>

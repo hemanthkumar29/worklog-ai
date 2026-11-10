@@ -189,137 +189,175 @@ export const ActivityHistoryView: React.FC = () => {
         </div>
       )}
 
-      {/* Filter Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        {/* Search */}
-        <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            placeholder="Search activities, tech, keywords..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-1 focus:ring-brand-500"
-          />
+      {/* Top macOS Filter Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 p-2 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06]">
+        <div className="flex flex-wrap items-center gap-2 flex-1">
+          {/* Search Field (NSSearchField Style) */}
+          <div className="relative min-w-[200px] flex-1 max-w-xs">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+            <input
+              type="text"
+              placeholder="Search activities, tech, keywords..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="macos-input w-full pl-8 py-1 text-[12px]"
+            />
+          </div>
+
+          {/* Project Filter */}
+          <select
+            value={selectedProjectId}
+            onChange={(e) => setSelectedProjectId(e.target.value)}
+            className="macos-input py-1 text-[12px] cursor-pointer"
+          >
+            <option value="">All Projects</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id} className="dark:bg-slate-900">
+                {p.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Status Filter */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="macos-input py-1 text-[12px] cursor-pointer"
+          >
+            <option value="">All Statuses</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="BLOCKED">Blocked</option>
+            <option value="PLANNED">Planned</option>
+          </select>
+
+          {/* Sync Status Filter */}
+          <select
+            value={selectedSyncStatus}
+            onChange={(e) => setSelectedSyncStatus(e.target.value)}
+            className="macos-input py-1 text-[12px] cursor-pointer"
+          >
+            <option value="">All Sync States</option>
+            <option value="SYNCED">Synced to Excel</option>
+            <option value="PENDING">Pending Sync</option>
+            <option value="FAILED">Failed</option>
+          </select>
         </div>
 
-        {/* Project Filter */}
-        <select
-          value={selectedProjectId}
-          onChange={(e) => setSelectedProjectId(e.target.value)}
-          className="text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-1.5 focus:outline-none cursor-pointer"
+        <button
+          onClick={() => loadActivities()}
+          title="Reload records from local SQLite"
+          className="macos-btn-secondary py-1 text-[12px]"
         >
-          <option value="">All Projects</option>
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-
-        {/* Status Filter */}
-        <select
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
-          className="text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-1.5 focus:outline-none cursor-pointer"
-        >
-          <option value="">All Statuses</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="IN_PROGRESS">In Progress</option>
-          <option value="BLOCKED">Blocked</option>
-          <option value="PLANNED">Planned</option>
-        </select>
-
-        {/* Sync Status Filter */}
-        <select
-          value={selectedSyncStatus}
-          onChange={(e) => setSelectedSyncStatus(e.target.value)}
-          className="text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-1.5 focus:outline-none cursor-pointer"
-        >
-          <option value="">All Sync States</option>
-          <option value="SYNCED">Synced</option>
-          <option value="PENDING">Pending Sync</option>
-          <option value="FAILED">Failed</option>
-        </select>
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Refresh</span>
+        </button>
       </div>
 
-      {/* Activity Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      {/* Activity Table (NSTableView Style) */}
+      <div className="macos-card overflow-hidden border border-black/[0.08] dark:border-white/[0.08] bg-white/70 dark:bg-black/30 shadow-xs">
         {filteredActivities.length === 0 ? (
           <div className="p-12 text-center text-slate-500 dark:text-slate-400">
-            <p className="text-sm font-semibold">No activities found</p>
-            <p className="text-xs mt-1">Try modifying your filters or capture a new activity.</p>
+            <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">No activities found</p>
+            <p className="text-[11px] mt-1 text-slate-400">Try adjusting your filters or record a new entry via Quick Capture.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-950/40">
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Project</th>
-                  <th className="py-3 px-4">Activity Title</th>
-                  <th className="py-3 px-4">Category</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Excel Sync</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                <tr className="border-b border-black/[0.06] dark:border-white/[0.06] text-[10px] font-semibold text-slate-400 uppercase tracking-wider bg-black/[0.02] dark:bg-white/[0.02]">
+                  <th className="py-2.5 px-3.5">Date</th>
+                  <th className="py-2.5 px-3.5">Project</th>
+                  <th className="py-2.5 px-3.5">Activity Title</th>
+                  <th className="py-2.5 px-3.5">Category</th>
+                  <th className="py-2.5 px-3.5">Status</th>
+                  <th className="py-2.5 px-3.5">Excel Sync</th>
+                  <th className="py-2.5 px-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+              <tbody className="divide-y divide-black/[0.04] dark:divide-white/[0.04] text-[12px]">
                 {filteredActivities.map((act) => (
                   <tr
                     key={act.id}
-                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
+                    className="hover:bg-[#007AFF]/[0.05] dark:hover:bg-[#007AFF]/[0.1] transition-colors group cursor-pointer"
                     onClick={() => setViewingActivity(act)}
                   >
-                    <td className="py-3 px-4 font-mono text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                    <td className="py-2.5 px-3.5 font-mono text-[11px] text-slate-400 whitespace-nowrap">
                       {act.activityDate}
                     </td>
-                    <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
-                      {act.projectName || "Default"}
-                    </td>
-                    <td className="py-3 px-4 font-semibold text-slate-900 dark:text-slate-100 max-w-xs truncate">
-                      {act.activityTitle}
-                    </td>
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <Badge variant={getCategoryBadgeVariant(act.activityType)} size="sm">
-                        {act.activityType.replace(/_/g, " ")}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <span className="font-medium text-slate-600 dark:text-slate-300">
-                        {act.status}
+                    <td className="py-2.5 px-3.5 font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-md bg-black/[0.04] dark:bg-white/[0.06] text-[11px] border border-black/[0.06] dark:border-white/[0.06]">
+                        {act.projectName || "General"}
                       </span>
                     </td>
-                    <td className="py-3 px-4 whitespace-nowrap">{getSyncBadge(act.syncStatus)}</td>
-                    <td className="py-3 px-4 text-right space-x-1 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        title="View Details"
-                        onClick={() => setViewingActivity(act)}
-                        className="p-1 rounded text-slate-400 hover:text-brand-600"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        title="Edit Activity"
-                        onClick={() => handleOpenEdit(act)}
-                        className="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        title="Sync to Excel"
-                        onClick={() => handleSyncSingle(act)}
-                        className="p-1 rounded text-slate-400 hover:text-emerald-600"
-                      >
-                        <FileSpreadsheet className="w-4 h-4" />
-                      </button>
-                      <button
-                        title="Delete Activity"
-                        onClick={() => setDeletingId(act.id)}
-                        className="p-1 rounded text-slate-400 hover:text-rose-600"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    <td className="py-2.5 px-3.5 font-medium text-slate-900 dark:text-slate-100 max-w-xs truncate">
+                      {act.activityTitle}
+                    </td>
+                    <td className="py-2.5 px-3.5 whitespace-nowrap">
+                      <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                        {act.activityType.replace(/_/g, " ")}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3.5 whitespace-nowrap">
+                      {act.status === "COMPLETED" ? (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]" />
+                          Completed
+                        </span>
+                      ) : act.status === "IN_PROGRESS" ? (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-300">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.7)]" />
+                          In Progress
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-rose-700 dark:text-rose-300">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.7)]" />
+                          Blocked
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2.5 px-3.5 whitespace-nowrap">
+                      {act.syncStatus === "SYNCED" ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 text-[10px] font-semibold">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Synced
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/25 text-[10px] font-semibold">
+                          <Clock3 className="w-3 h-3 text-amber-600" /> Pending
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2.5 px-3.5 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          title="View Details"
+                          onClick={() => setViewingActivity(act)}
+                          className="w-6 h-6 rounded-md hover:bg-black/[0.06] dark:hover:bg-white/[0.1] text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center transition-colors macos-button-press cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          title="Edit Activity"
+                          onClick={() => handleOpenEdit(act)}
+                          className="w-6 h-6 rounded-md hover:bg-black/[0.06] dark:hover:bg-white/[0.1] text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center transition-colors macos-button-press cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          title="Sync to Excel"
+                          onClick={() => handleSyncSingle(act)}
+                          className="w-6 h-6 rounded-md hover:bg-black/[0.06] dark:hover:bg-white/[0.1] text-slate-400 hover:text-emerald-600 flex items-center justify-center transition-colors macos-button-press cursor-pointer"
+                        >
+                          <FileSpreadsheet className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          title="Delete Activity"
+                          onClick={() => setDeletingId(act.id)}
+                          className="w-6 h-6 rounded-md hover:bg-black/[0.06] dark:hover:bg-white/[0.1] text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors macos-button-press cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

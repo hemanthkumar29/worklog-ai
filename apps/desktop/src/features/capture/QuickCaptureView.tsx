@@ -1,24 +1,20 @@
 import React, { useState } from "react";
 import {
   Sparkles,
-  Save,
   FileSpreadsheet,
   Plus,
   Trash2,
-  Clock,
   Calendar,
   Tag,
   AlertCircle,
   CheckCircle2,
   ListTodo,
   AlertTriangle,
-  ArrowRightCircle,
+  ArrowRight,
+  RotateCcw,
+  Check,
+  FolderKanban,
 } from "lucide-react";
-import { Button } from "../../components/ui/Button";
-import { Input, Textarea } from "../../components/ui/Input";
-import { Select } from "../../components/ui/Select";
-import { Badge } from "../../components/ui/Badge";
-import { Card } from "../../components/ui/Card";
 import { useActivityStore } from "../../stores/useActivityStore";
 import { useProjectStore } from "../../stores/useProjectStore";
 import { useExcelStore } from "../../stores/useExcelStore";
@@ -62,7 +58,7 @@ export const QuickCaptureView: React.FC = () => {
   const samplePrompts = [
     {
       label: "Salesforce Duplicate Rules",
-      text: "I worked on Salesforce account duplicate prevention. Explored matching rules and duplicate rules. Tested account creation with similar names and investigated why the flow was not detecting duplicates.",
+      text: "I worked on Salesforce account duplicate prevention. Explored matching rules and duplicate rules. Tested account creation with similar names and investigated why the flow was not detecting duplicates. Spent 2.5 hours.",
     },
     {
       label: "React Optimization",
@@ -99,7 +95,6 @@ export const QuickCaptureView: React.FC = () => {
         type: "error",
         message: err?.toString() || "AI enhancement failed. You can still fill in the details manually.",
       });
-      // Fallback: Populate basic fields
       setTitle(rawInput.slice(0, 50));
       setDescription(rawInput);
       setHasEnhanced(true);
@@ -148,7 +143,6 @@ export const QuickCaptureView: React.FC = () => {
       return;
     }
 
-    // Check if an Excel connection exists
     const activeProject = projects.find((p) => p.id === activeProjectId);
     const connection = connections.find(
       (c) => c.id === activeProject?.excelConnectionId
@@ -158,7 +152,7 @@ export const QuickCaptureView: React.FC = () => {
       setFeedback({
         type: "error",
         message:
-          "No Excel template configured for this project. Please configure column mappings in the 'Excel Integration' tab first, or click 'Save to History Only'.",
+          "No Excel template configured for this project. Please configure column mappings in the 'Excel Integration' tab first, or click 'Save Locally'.",
       });
       return;
     }
@@ -167,7 +161,6 @@ export const QuickCaptureView: React.FC = () => {
     setFeedback(null);
 
     try {
-      // 1. Save activity locally first
       const saved = await saveActivity({
         projectId: activeProjectId,
         activityDate,
@@ -183,7 +176,6 @@ export const QuickCaptureView: React.FC = () => {
         nextSteps,
       });
 
-      // 2. Synchronize to Excel
       const syncResult = await syncToExcel(saved.id, template.id);
 
       setFeedback({
@@ -241,22 +233,25 @@ export const QuickCaptureView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12 select-none">
-      {/* Top Banner / Intro */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="max-w-4xl mx-auto space-y-5 pb-16 select-none animate-apple-in">
+      {/* Top macOS Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-black/[0.06] dark:border-white/[0.06]">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-            Quick Capture
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-[17px] font-bold text-slate-900 dark:text-white tracking-tight">
+              Quick Capture
+            </h2>
+            <span className="macos-kbd">⌘1</span>
+          </div>
+          <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">
             Describe your work in plain words. AI will structure and polish it for your Excel report.
           </p>
         </div>
 
         {/* Project Selector & Date Picker */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs">
+        <div className="flex items-center gap-2">
+          {/* Date Picker Pill */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-black/10 dark:border-white/10 bg-white/70 dark:bg-black/20 text-[12px] shadow-2xs">
             <Calendar className="w-3.5 h-3.5 text-slate-400" />
             <input
               type="date"
@@ -266,12 +261,24 @@ export const QuickCaptureView: React.FC = () => {
             />
           </div>
 
-          <div className="min-w-[180px]">
-            <Select
+          {/* Project Dropdown */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-black/10 dark:border-white/10 bg-white/70 dark:bg-black/20 text-[12px] shadow-2xs">
+            <FolderKanban className="w-3.5 h-3.5 text-[#007AFF] dark:text-[#0A84FF]" />
+            <select
               value={activeProjectId || ""}
               onChange={(e) => setActiveProject(e.target.value)}
-              options={projects.map((p) => ({ value: p.id, label: p.name }))}
-            />
+              className="bg-transparent focus:outline-none text-slate-800 dark:text-slate-100 font-medium cursor-pointer"
+            >
+              {projects.length === 0 ? (
+                <option value="">No projects</option>
+              ) : (
+                projects.map((p) => (
+                  <option key={p.id} value={p.id} className="dark:bg-slate-900">
+                    {p.name}
+                  </option>
+                ))
+              )}
+            </select>
           </div>
         </div>
       </div>
@@ -279,18 +286,18 @@ export const QuickCaptureView: React.FC = () => {
       {/* Feedback Banner */}
       {feedback && (
         <div
-          className={`p-4 rounded-xl border flex items-start gap-3 transition-all ${
+          className={`p-3.5 rounded-xl border flex items-start gap-3 transition-all animate-apple-in ${
             feedback.type === "success"
-              ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200"
-              : "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200"
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-900 dark:text-emerald-200"
+              : "bg-rose-500/10 border-rose-500/20 text-rose-900 dark:text-rose-200"
           }`}
         >
           {feedback.type === "success" ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
           ) : (
-            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
           )}
-          <div className="text-xs space-y-1">
+          <div className="text-[12px] space-y-1">
             <p className="font-semibold">{feedback.message}</p>
             {feedback.backupPath && (
               <p className="text-[11px] opacity-80">
@@ -301,127 +308,162 @@ export const QuickCaptureView: React.FC = () => {
         </div>
       )}
 
-      {/* Input Box Card */}
-      <Card className="space-y-4">
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+      {/* Input Canvas Card (Apple Notes Style) */}
+      <div className="macos-card p-4 space-y-3 bg-white/70 dark:bg-black/25 border border-black/[0.08] dark:border-white/[0.08]">
+        <div className="flex items-center justify-between">
+          <label className="text-[12px] font-semibold text-slate-700 dark:text-slate-300">
             What did you work on today?
           </label>
-          <Textarea
-            rows={4}
-            placeholder="e.g. Worked on Salesforce account duplicate prevention. Explored matching rules and duplicate rules. Tested account creation with similar names and investigated why the flow was not detecting duplicates..."
-            value={rawInput}
-            onChange={(e) => setRawInput(e.target.value)}
-            className="text-sm leading-relaxed"
-          />
+          <span className="text-[11px] text-slate-400 dark:text-slate-400">
+            Natural Language Input
+          </span>
         </div>
 
-        {/* Quick Sample Prompts */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-[11px] font-medium text-slate-400">Quick Try:</span>
-          {samplePrompts.map((sp, idx) => (
-            <button
-              key={idx}
-              onClick={() => setRawInput(sp.text)}
-              className="text-[11px] px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
-            >
-              {sp.label}
-            </button>
-          ))}
-        </div>
+        <textarea
+          rows={4}
+          placeholder="e.g. Worked on Salesforce account duplicate prevention. Explored matching rules and duplicate rules. Tested account creation with similar names and investigated why the flow was not detecting duplicates. Spent 2.5 hours."
+          value={rawInput}
+          onChange={(e) => setRawInput(e.target.value)}
+          onKeyDown={(e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+              e.preventDefault();
+              handleEnhance();
+            }
+          }}
+          className="w-full rounded-lg border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/30 p-3 text-[13px] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 focus:border-[#007AFF] transition-all leading-relaxed"
+        />
 
-        {/* Enhance Button */}
-        <div className="flex justify-end pt-2">
-          <Button
-            onClick={handleEnhance}
-            isLoading={isEnhancing}
-            disabled={!rawInput.trim()}
-            icon={<Sparkles className="w-4 h-4 text-amber-300" />}
-            size="md"
-          >
-            Enhance with Local AI
-          </Button>
-        </div>
-      </Card>
-
-      {/* AI Structured Review Card */}
-      {hasEnhanced && (
-        <Card className="border-brand-200/80 dark:border-brand-900/60 shadow-lg space-y-5 animate-in fade-in duration-300">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-2">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                AI Structured Work Log (Review & Edit)
-              </h3>
-            </div>
-            <span className="text-[11px] text-slate-400">
-              Review and adjust before saving
-            </span>
+        {/* Quick Sample Prompts & Action Button */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-black/[0.05] dark:border-white/[0.05]">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] font-medium text-slate-400">Templates:</span>
+            {samplePrompts.map((sp, idx) => (
+              <button
+                key={idx}
+                onClick={() => setRawInput(sp.text)}
+                className="text-[11px] px-2 py-0.5 rounded-md bg-black/[0.04] hover:bg-black/[0.08] dark:bg-white/[0.06] dark:hover:bg-white/[0.12] text-slate-600 dark:text-slate-300 transition-colors cursor-pointer macos-button-press"
+              >
+                {sp.label}
+              </button>
+            ))}
           </div>
 
-          {/* Title & Metadata Row */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
-              <Input
-                label="Activity Title"
+          <button
+            onClick={handleEnhance}
+            disabled={isEnhancing || !rawInput.trim()}
+            className="macos-btn-primary"
+          >
+            {isEnhancing ? (
+              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            )}
+            <span>Enhance with AI</span>
+            <kbd className="px-1 py-0.2 rounded bg-white/20 text-[10px] font-mono">⌘↵</kbd>
+          </button>
+        </div>
+      </div>
+
+      {/* AI Structured Review Card (macOS Inspector Style) */}
+      {hasEnhanced && (
+        <div className="macos-card p-5 space-y-5 bg-white/80 dark:bg-black/40 border border-black/[0.08] dark:border-white/[0.1] shadow-lg animate-apple-in">
+          {/* Inspector Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+              <h3 className="text-[13px] font-bold text-slate-900 dark:text-slate-100">
+                Structured Activity Inspector
+              </h3>
+            </div>
+            <button
+              onClick={() => setHasEnhanced(false)}
+              className="text-[11px] text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Re-edit Notes</span>
+            </button>
+          </div>
+
+          {/* Title & Key Properties Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5">
+            <div className="md:col-span-2 space-y-1">
+              <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Activity Title
+              </label>
+              <input
+                type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                className="macos-input w-full"
+                placeholder="Title..."
               />
             </div>
 
-            <div>
-              <Select
-                label="Category"
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Category
+              </label>
+              <select
                 value={activityType}
                 onChange={(e) => setActivityType(e.target.value as ActivityType)}
-                options={[
-                  { value: "DEVELOPMENT", label: "Development" },
-                  { value: "BUG_FIXING", label: "Bug Fixing" },
-                  { value: "RESEARCH_AND_TESTING", label: "Research & Testing" },
-                  { value: "CODE_REVIEW", label: "Code Review" },
-                  { value: "MEETING", label: "Meeting" },
-                  { value: "DOCUMENTATION", label: "Documentation" },
-                  { value: "DEPLOYMENT", label: "Deployment" },
-                  { value: "PLANNING", label: "Planning" },
-                ]}
-              />
+                className="macos-input w-full cursor-pointer"
+              >
+                <option value="DEVELOPMENT">Development</option>
+                <option value="BUG_FIXING">Bug Fixing</option>
+                <option value="RESEARCH_AND_TESTING">Research & Testing</option>
+                <option value="CODE_REVIEW">Code Review</option>
+                <option value="MEETING">Meeting</option>
+                <option value="DOCUMENTATION">Documentation</option>
+                <option value="DEPLOYMENT">Deployment</option>
+                <option value="PLANNING">Planning</option>
+              </select>
             </div>
 
-            <div>
-              <Select
-                label="Status"
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Status
+              </label>
+              <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as ActivityStatus)}
-                options={[
-                  { value: "COMPLETED", label: "Completed" },
-                  { value: "IN_PROGRESS", label: "In Progress" },
-                  { value: "BLOCKED", label: "Blocked" },
-                  { value: "PLANNED", label: "Planned" },
-                ]}
-              />
+                className="macos-input w-full cursor-pointer"
+              >
+                <option value="COMPLETED">Completed</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="BLOCKED">Blocked</option>
+                <option value="PLANNED">Planned</option>
+              </select>
             </div>
           </div>
 
           {/* Description */}
-          <div>
-            <Textarea
-              label="Professional Description"
-              rows={3}
+          <div className="space-y-1">
+            <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Professional Description
+            </label>
+            <textarea
+              rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              className="macos-input w-full leading-relaxed"
             />
           </div>
 
-          {/* Granular Tasks */}
+          {/* Granular Tasks (Apple Reminders Style) */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <ListTodo className="w-3.5 h-3.5 text-brand-600" />
+            <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <ListTodo className="w-3.5 h-3.5 text-[#007AFF] dark:text-[#0A84FF]" />
               Detailed Action Items
             </label>
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               {tasks.map((task, idx) => (
-                <div key={idx} className="flex items-center gap-2 group">
-                  <span className="text-xs text-brand-600 font-bold">•</span>
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 p-1.5 rounded-md hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group transition-colors"
+                >
+                  <div className="w-4 h-4 rounded-full border border-[#007AFF]/50 flex items-center justify-center shrink-0">
+                    <Check className="w-2.5 h-2.5 text-[#007AFF]" />
+                  </div>
                   <input
                     type="text"
                     value={task}
@@ -430,172 +472,166 @@ export const QuickCaptureView: React.FC = () => {
                       updated[idx] = e.target.value;
                       setTasks(updated);
                     }}
-                    className="flex-1 text-xs py-1 px-2 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 focus:bg-white dark:focus:bg-slate-900 focus:outline-none"
+                    className="flex-1 text-[12px] bg-transparent focus:outline-none text-slate-800 dark:text-slate-200"
                   />
                   <button
                     onClick={() => setTasks(tasks.filter((_, i) => i !== idx))}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 transition-opacity"
+                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 transition-opacity cursor-pointer"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
               ))}
               <div className="flex gap-2 pt-1">
                 <input
                   type="text"
-                  placeholder="+ Add another task..."
+                  placeholder="+ Add another task item..."
                   value={newTaskInput}
                   onChange={(e) => setNewTaskInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
-                  className="flex-1 text-xs py-1 px-2.5 rounded-md border border-dashed border-slate-300 dark:border-slate-700 bg-transparent focus:outline-none text-slate-700 dark:text-slate-300"
+                  className="flex-1 text-[12px] py-1 px-2.5 rounded-md border border-dashed border-black/15 dark:border-white/15 bg-transparent focus:outline-none"
                 />
-                <Button size="sm" variant="ghost" onClick={handleAddTask}>
-                  <Plus className="w-3.5 h-3.5" />
-                </Button>
+                <button
+                  onClick={handleAddTask}
+                  className="macos-btn-secondary px-2.5 py-1 text-xs"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Add</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Technologies Tags */}
+          {/* Technologies Chips */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-brand-600" />
+            <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-[#007AFF] dark:text-[#0A84FF]" />
               Technologies Used
             </label>
             <div className="flex flex-wrap items-center gap-1.5">
               {technologies.map((tech, idx) => (
-                <Badge
+                <span
                   key={idx}
-                  variant="info"
-                  className="flex items-center gap-1 pr-1.5"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] border border-[#007AFF]/25"
                 >
-                  {tech}
+                  <span>{tech}</span>
                   <button
                     onClick={() => setTechnologies(technologies.filter((_, i) => i !== idx))}
-                    className="hover:text-rose-600 cursor-pointer"
+                    className="hover:text-rose-600 cursor-pointer ml-0.5"
                   >
                     ×
                   </button>
-                </Badge>
+                </span>
               ))}
-              <div className="flex items-center gap-1">
-                <input
-                  type="text"
-                  placeholder="+ Tech"
-                  value={newTechInput}
-                  onChange={(e) => setNewTechInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddTech()}
-                  className="text-xs py-0.5 px-2 w-20 rounded border border-dashed border-slate-300 dark:border-slate-700 bg-transparent focus:outline-none"
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="+ Add Tech"
+                value={newTechInput}
+                onChange={(e) => setNewTechInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddTech()}
+                className="text-[11px] py-0.5 px-2 w-20 rounded-md border border-dashed border-black/15 dark:border-white/15 bg-transparent focus:outline-none"
+              />
             </div>
           </div>
 
           {/* Challenges & Next Steps Side-by-Side */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
             {/* Challenges */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+            <div className="space-y-1.5 p-3 rounded-lg bg-amber-500/[0.06] border border-amber-500/20">
+              <label className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <AlertTriangle className="w-3.5 h-3.5" />
-                Challenges / Blockers
+                Blockers & Challenges
               </label>
               <div className="space-y-1">
-                {challenges.map((ch, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 text-xs">
-                    <span className="text-amber-500 font-bold">•</span>
-                    <span className="flex-1 text-slate-700 dark:text-slate-300">{ch}</span>
+                {challenges.map((c, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-[11px] text-amber-900 dark:text-amber-200">
+                    <span>• {c}</span>
                     <button
                       onClick={() => setChallenges(challenges.filter((_, i) => i !== idx))}
-                      className="text-slate-400 hover:text-rose-500"
+                      className="text-amber-500 hover:text-rose-500 cursor-pointer ml-1"
                     >
                       ×
                     </button>
                   </div>
                 ))}
-                <input
-                  type="text"
-                  placeholder="+ Add challenge..."
-                  value={newChallengeInput}
-                  onChange={(e) => setNewChallengeInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddChallenge()}
-                  className="w-full text-xs py-1 px-2 rounded border border-dashed border-slate-300 dark:border-slate-700 bg-transparent focus:outline-none"
-                />
+                <div className="flex gap-1 pt-1">
+                  <input
+                    type="text"
+                    placeholder="+ Challenge..."
+                    value={newChallengeInput}
+                    onChange={(e) => setNewChallengeInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAddChallenge()}
+                    className="flex-1 text-[11px] py-0.5 px-2 rounded border border-amber-300/40 dark:border-amber-700/40 bg-transparent focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Next Steps */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
-                <ArrowRightCircle className="w-3.5 h-3.5" />
-                Next Steps / Follow-ups
+            <div className="space-y-1.5 p-3 rounded-lg bg-sky-500/[0.06] border border-sky-500/20">
+              <label className="text-[11px] font-semibold text-sky-700 dark:text-sky-300 flex items-center gap-1.5 uppercase tracking-wider">
+                <ArrowRight className="w-3.5 h-3.5" />
+                Next Standup Deliverables
               </label>
               <div className="space-y-1">
                 {nextSteps.map((ns, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 text-xs">
-                    <span className="text-sky-500 font-bold">•</span>
-                    <span className="flex-1 text-slate-700 dark:text-slate-300">{ns}</span>
+                  <div key={idx} className="flex items-center justify-between text-[11px] text-sky-900 dark:text-sky-200">
+                    <span>• {ns}</span>
                     <button
                       onClick={() => setNextSteps(nextSteps.filter((_, i) => i !== idx))}
-                      className="text-slate-400 hover:text-rose-500"
+                      className="text-sky-500 hover:text-rose-500 cursor-pointer ml-1"
                     >
                       ×
                     </button>
                   </div>
                 ))}
-                <input
-                  type="text"
-                  placeholder="+ Add next step..."
-                  value={newNextStepInput}
-                  onChange={(e) => setNewNextStepInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddNextStep()}
-                  className="w-full text-xs py-1 px-2 rounded border border-dashed border-slate-300 dark:border-slate-700 bg-transparent focus:outline-none"
-                />
+                <div className="flex gap-1 pt-1">
+                  <input
+                    type="text"
+                    placeholder="+ Next step..."
+                    value={newNextStepInput}
+                    onChange={(e) => setNewNextStepInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAddNextStep()}
+                    className="flex-1 text-[11px] py-0.5 px-2 rounded border border-sky-300/40 dark:border-sky-700/40 bg-transparent focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Time spent optional input */}
-          <div className="pt-2 flex items-center gap-3">
-            <Clock className="w-4 h-4 text-slate-400" />
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-              Time spent (minutes):
-            </span>
-            <input
-              type="number"
-              placeholder="e.g. 120"
-              value={timeSpentMinutes !== null ? timeSpentMinutes : ""}
-              onChange={(e) =>
-                setTimeSpentMinutes(e.target.value ? parseInt(e.target.value, 10) : null)
-              }
-              className="w-24 text-xs py-1 px-2 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none"
-            />
-            {timeSpentMinutes && (
-              <span className="text-xs text-slate-400">
-                ({(timeSpentMinutes / 60).toFixed(1)} hours)
-              </span>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={handleSaveOnly}
-              icon={<Save className="w-4 h-4" />}
+          {/* Action Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
+            <button
+              onClick={resetForm}
+              className="text-[12px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer transition-colors"
             >
-              Save to History Only
-            </Button>
+              Discard
+            </button>
 
-            <Button
-              variant="primary"
-              onClick={handleSaveAndSync}
-              isLoading={isSyncing}
-              icon={<FileSpreadsheet className="w-4 h-4 text-emerald-300" />}
-            >
-              Approve & Sync to Excel
-            </Button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleSaveOnly}
+                className="macos-btn-secondary"
+              >
+                Save Locally
+              </button>
+
+              <button
+                onClick={handleSaveAndSync}
+                disabled={isSyncing}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-1.5 text-[13px] font-semibold text-white rounded-md bg-gradient-to-b from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-xs cursor-pointer macos-button-press border border-white/20 disabled:opacity-50"
+              >
+                {isSyncing ? (
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                )}
+                <span>Sync to Excel</span>
+                <kbd className="px-1 py-0.2 rounded bg-white/20 text-[10px] font-mono">⌘S</kbd>
+              </button>
+            </div>
           </div>
-        </Card>
+        </div>
       )}
     </div>
   );

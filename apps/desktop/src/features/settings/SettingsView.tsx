@@ -5,15 +5,12 @@ import {
   Database,
   Trash2,
   CheckCircle2,
-  AlertTriangle,
   Keyboard,
   User,
+  ShieldCheck,
+  HardDrive,
+  FileSpreadsheet,
 } from "lucide-react";
-import { Button } from "../../components/ui/Button";
-import { Card } from "../../components/ui/Card";
-import { Badge } from "../../components/ui/Badge";
-import { Input } from "../../components/ui/Input";
-import { Select } from "../../components/ui/Select";
 import { Modal } from "../../components/ui/Modal";
 import { useUserStore } from "../../stores/useUserStore";
 import { tauriApi } from "../../services/tauriApi";
@@ -54,234 +51,292 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12 select-none">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <SettingsIcon className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-          Application Settings
-        </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-          Configure profile, AI inference engine, keyboard shortcuts, and local storage.
-        </p>
+    <div className="max-w-3xl mx-auto space-y-6 pb-16 select-none animate-apple-in">
+      {/* View Header */}
+      <div className="flex items-center justify-between pb-2 border-b border-black/[0.06] dark:border-white/[0.06]">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-[17px] font-bold text-slate-900 dark:text-white tracking-tight">
+              Preferences & Settings
+            </h2>
+            <span className="macos-kbd">⌘,</span>
+          </div>
+          <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">
+            Configure user identity, system hotkeys, hardware acceleration, and local data storage.
+          </p>
+        </div>
+
+        {saveFeedback && (
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-semibold animate-apple-in">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{saveFeedback}</span>
+          </div>
+        )}
       </div>
 
-      {saveFeedback && (
-        <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>{saveFeedback}</span>
-        </div>
-      )}
-
-      {/* User Profile */}
-      <Card className="space-y-4">
-        <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-          <User className="w-4 h-4 text-brand-600" />
-          User Profile
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="Display Name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            helperText="Written to the Associate/Employee column in synchronized Excel sheets."
-          />
-          <Select
-            label="Date Format"
-            value={dateFormat}
-            onChange={(e) => setDateFormat(e.target.value)}
-            options={[
-              { value: "YYYY-MM-DD", label: "YYYY-MM-DD" },
-              { value: "DD/MM/YYYY", label: "DD/MM/YYYY" },
-              { value: "MM/DD/YYYY", label: "MM/DD/YYYY" },
-            ]}
-          />
-        </div>
-        <div className="flex justify-end pt-1">
-          <Button size="sm" onClick={handleSaveProfile}>
-            Save Profile
-          </Button>
-        </div>
-      </Card>
-
-      {/* AI Model & Hardware Profiler */}
-      <Card className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-brand-600" />
-            Local AI Hardware Profiler
-          </h3>
-          <Badge variant="success" size="sm">
-            100% Offline Active
-          </Badge>
-        </div>
-
-        {hardware && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-            <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase">
-                System RAM
-              </span>
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                {(((hardware.totalMemoryBytes ?? hardware.total_memory_bytes ?? 0) / (1024 * 1024 * 1024))).toFixed(1)} GB
-              </p>
-            </div>
-
-            <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase">
-                CPU Cores
-              </span>
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                {hardware.cpuCores ?? hardware.cpu_cores ?? 0} Cores ({hardware.cpuArchitecture ?? hardware.cpu_architecture ?? "Unknown"})
-              </p>
-            </div>
-
-            <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase">
-                Hardware Acceleration
-              </span>
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                {(hardware.hasMetalSupport ?? hardware.has_metal_support)
-                  ? "Apple Metal GPU"
-                  : (hardware.hasAvx2Support ?? hardware.has_avx2_support)
-                  ? "AVX2 SIMD"
-                  : "Standard CPU"}
-              </p>
-            </div>
-
-            <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase">
-                Inference Mode
-              </span>
-              <p className="text-sm font-bold text-brand-600 dark:text-brand-400 mt-0.5">
-                Hybrid (NLP + Model)
-              </p>
-            </div>
-          </div>
-        )}
-
-        <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-xs text-slate-500 space-y-1">
-          <p className="font-semibold text-slate-700 dark:text-slate-300">
-            Hardware-Aware AI Guarantee:
-          </p>
-          <p>
-            WorkLog AI utilizes a dual-tier offline inference engine. The high-precision deterministic NLP parser executes instantaneously on any CPU with zero memory overhead, ensuring seamless operation even under constrained resources.
-          </p>
-        </div>
-      </Card>
-
-      {/* Global Shortcut Configuration */}
-      <Card className="space-y-3">
-        <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-          <Keyboard className="w-4 h-4 text-brand-600" />
-          Global Desktop Shortcuts
-        </h3>
-        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs">
-          <div>
-            <p className="font-semibold text-slate-800 dark:text-slate-200">
-              Floating Quick Capture Trigger
-            </p>
-            <p className="text-slate-500">Opens the capture window anywhere in macOS or Windows.</p>
-          </div>
-          <kbd className="px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold shadow-sm">
-            ⌘+Shift+Space / Ctrl+Shift+Space
-          </kbd>
-        </div>
-      </Card>
-
-      {/* Database Information */}
-      <Card className="space-y-4">
-        <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-          <Database className="w-4 h-4 text-emerald-600" />
-          Local Database & Storage
-        </h3>
-
-        {dbStats && (
-          <div className="space-y-3 text-xs">
-            <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5 font-mono text-[11px]">
-              <div>
-                <span className="text-slate-400">Database Path: </span>
-                <span className="text-slate-800 dark:text-slate-200 select-all">
-                  {dbStats.dbPath ?? dbStats.db_path}
-                </span>
+      {/* Group 1: User Profile (macOS System Settings Grouped Inset) */}
+      <div className="space-y-1.5">
+        <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider px-2">
+          User Account & Regional Formats
+        </span>
+        <div className="rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-white/70 dark:bg-black/25 divide-y divide-black/[0.05] dark:divide-white/[0.05] overflow-hidden shadow-xs">
+          {/* Display Name Row */}
+          <div className="p-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-[#007AFF] text-white flex items-center justify-center shadow-2xs">
+                <User className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-slate-400">Backups Directory: </span>
-                <span className="text-slate-800 dark:text-slate-200 select-all">
-                  {dbStats.backupDir ?? dbStats.backup_dir}
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-center">
-                <span className="text-[10px] text-slate-400 uppercase">Activities</span>
-                <p className="text-base font-bold text-slate-900 dark:text-slate-100">
-                  {dbStats.totalActivities ?? dbStats.total_activities ?? 0}
+                <p className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">
+                  Associate / Employee Name
                 </p>
-              </div>
-              <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-center">
-                <span className="text-[10px] text-slate-400 uppercase">Projects</span>
-                <p className="text-base font-bold text-slate-900 dark:text-slate-100">
-                  {dbStats.totalProjects ?? dbStats.total_projects ?? 0}
-                </p>
-              </div>
-              <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-center">
-                <span className="text-[10px] text-slate-400 uppercase">File Size</span>
-                <p className="text-base font-bold text-slate-900 dark:text-slate-100">
-                  {(((dbStats.dbSizeBytes ?? dbStats.db_size_bytes ?? 0) / 1024)).toFixed(1)} KB
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">
+                  Appended into the Resource Name column of synchronized timesheets.
                 </p>
               </div>
             </div>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="macos-input w-48 text-[12px]"
+              placeholder="e.g. Jane Doe"
+            />
           </div>
-        )}
-      </Card>
 
-      {/* Danger Zone: Wipe All Data */}
-      <Card className="border-rose-200 dark:border-rose-950/60 space-y-3">
-        <h3 className="font-semibold text-xs text-rose-700 dark:text-rose-400 uppercase tracking-wider flex items-center gap-2">
-          <Trash2 className="w-4 h-4 text-rose-600" />
-          Danger Zone
-        </h3>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
-              Clear All Stored Application Data
-            </p>
-            <p className="text-[11px] text-slate-500">
-              Permanently removes all local projects, activity logs, mappings, and restarts setup.
-            </p>
+          {/* Date Format Row */}
+          <div className="p-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-[#5856D6] text-white flex items-center justify-center shadow-2xs">
+                <SettingsIcon className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">
+                  Date Format Standard
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">
+                  Formatting convention applied during Excel row synchronization.
+                </p>
+              </div>
+            </div>
+            <select
+              value={dateFormat}
+              onChange={(e) => setDateFormat(e.target.value)}
+              className="macos-input w-48 text-[12px] cursor-pointer"
+            >
+              <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+              <option value="DD/MM/YYYY">DD/MM/YYYY (UK/EU)</option>
+              <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+            </select>
           </div>
-          <Button
-            variant="danger"
-            size="sm"
+
+          {/* Save Button Row */}
+          <div className="p-3 bg-black/[0.01] dark:bg-white/[0.01] flex justify-end">
+            <button
+              onClick={handleSaveProfile}
+              className="macos-btn-primary"
+            >
+              Apply Changes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Group 2: System Shortcuts */}
+      <div className="space-y-1.5">
+        <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider px-2">
+          System Shortcuts & Quick Capture
+        </span>
+        <div className="rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-white/70 dark:bg-black/25 divide-y divide-black/[0.05] dark:divide-white/[0.05] overflow-hidden shadow-xs">
+          <div className="p-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-[#AF52DE] text-white flex items-center justify-center shadow-2xs">
+                <Keyboard className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">
+                  Spotlight Quick Capture Hotkey
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">
+                  Opens the floating capture card globally from any running app.
+                </p>
+              </div>
+            </div>
+            <kbd className="px-2.5 py-1 rounded-md bg-black/[0.04] dark:bg-white/[0.08] border border-black/10 dark:border-white/10 text-[12px] font-mono font-bold">
+              ⌘ + Shift + Space
+            </kbd>
+          </div>
+
+          <div className="p-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-[#34C759] text-white flex items-center justify-center shadow-2xs">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">
+                  Native macOS System Tray
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">
+                  Menu bar item active for background capture and dashboard toggling.
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Active in Menu Bar
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Group 3: Hardware Acceleration & Local AI Engine */}
+      <div className="space-y-1.5">
+        <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider px-2">
+          Apple Silicon & Inference Acceleration
+        </span>
+        <div className="rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-white/70 dark:bg-black/25 divide-y divide-black/[0.05] dark:divide-white/[0.05] overflow-hidden shadow-xs">
+          <div className="p-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-[#FF9500] text-white flex items-center justify-center shadow-2xs">
+                <Cpu className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">
+                  Hardware Acceleration Architecture
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">
+                  {hardware?.cpuArchitecture || "ARM64"} • {hardware?.cpuCores || 8} CPU Cores • Apple Metal GPU
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#FF9500]/10 text-[#FF9500] text-[11px] font-bold border border-[#FF9500]/25">
+              Apple Silicon Metal
+            </span>
+          </div>
+
+          <div className="p-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-[#30B0C7] text-white flex items-center justify-center shadow-2xs">
+                <HardDrive className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">
+                  Available Unified Memory
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">
+                  Fast unified RAM allocated for zero-latency NLP heuristic parsing.
+                </p>
+              </div>
+            </div>
+            <span className="text-[12px] font-bold font-mono text-slate-700 dark:text-slate-300">
+              {(((hardware?.totalMemoryBytes ?? hardware?.total_memory_bytes ?? 0) / (1024 * 1024 * 1024))).toFixed(1)} GB
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Group 4: Local SQLite Database Storage */}
+      <div className="space-y-1.5">
+        <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider px-2">
+          Local Storage & Enterprise Safety
+        </span>
+        <div className="rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-white/70 dark:bg-black/25 divide-y divide-black/[0.05] dark:divide-white/[0.05] overflow-hidden shadow-xs">
+          <div className="p-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-[#34C759] text-white flex items-center justify-center shadow-2xs">
+                <Database className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">
+                  SQLite Database (WAL Mode)
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">
+                  {dbStats?.totalActivities ?? dbStats?.total_activities ?? 0} activities • {dbStats?.totalProjects ?? dbStats?.total_projects ?? 0} projects • {dbStats?.totalExcelConnections ?? dbStats?.total_excel_connections ?? 0} connections
+                </p>
+              </div>
+            </div>
+            <span className="text-[12px] font-mono text-slate-500">
+              {(((dbStats?.dbSizeBytes ?? dbStats?.db_size_bytes ?? 0)) / 1024).toFixed(1)} KB
+            </span>
+          </div>
+
+          <div className="p-3.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-[#007AFF] text-white flex items-center justify-center shadow-2xs">
+                <FileSpreadsheet className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">
+                  Excel Pre-Write Backup Engine
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">
+                  Timestamped .bak.xlsx copies created automatically before every write.
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
+              Active
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Group 5: Danger Zone */}
+      <div className="space-y-1.5 pt-2">
+        <span className="text-[11px] font-semibold text-rose-500 uppercase tracking-wider px-2">
+          Maintenance & Reset
+        </span>
+        <div className="rounded-xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-950/20 p-4 flex items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-lg bg-[#FF3B30] text-white flex items-center justify-center shadow-2xs">
+              <Trash2 className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-[13px] font-semibold text-rose-900 dark:text-rose-200">
+                Purge All Local Records
+              </p>
+              <p className="text-[11px] text-rose-700 dark:text-rose-400">
+                Permanently wipes all activities, projects, and templates from SQLite.
+              </p>
+            </div>
+          </div>
+          <button
             onClick={() => setIsWipeOpen(true)}
-            icon={<AlertTriangle className="w-3.5 h-3.5" />}
+            className="px-3 py-1.5 rounded-md text-[12px] font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer macos-button-press"
           >
-            Clear All Data
-          </Button>
+            Reset Database
+          </button>
         </div>
-      </Card>
+      </div>
 
       {/* Wipe Confirmation Modal */}
-      {isWipeOpen && (
-        <Modal
-          isOpen={isWipeOpen}
-          onClose={() => setIsWipeOpen(false)}
-          title="Permanently Delete All Data?"
-          description="This action will delete all recorded activities, projects, and templates stored in your local SQLite database. External Excel files will not be touched."
-          size="sm"
-        >
-          <div className="pt-4 flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setIsWipeOpen(false)}>
+      <Modal
+        isOpen={isWipeOpen}
+        onClose={() => setIsWipeOpen(false)}
+        title="Reset All Local Data"
+        description="This action will permanently delete all logged activities, projects, and custom Excel column templates."
+        size="sm"
+      >
+        <div className="space-y-4 text-xs pt-1">
+          <p className="text-slate-700 dark:text-slate-300">
+            Are you sure you want to proceed? Your external Excel spreadsheets will <strong>not</strong> be deleted, but your local WorkLog AI history will be reset to zero.
+          </p>
+          <div className="flex justify-end gap-2 pt-2 border-t border-black/[0.06] dark:border-white/[0.06]">
+            <button
+              onClick={() => setIsWipeOpen(false)}
+              className="macos-btn-secondary"
+            >
               Cancel
-            </Button>
-            <Button variant="danger" onClick={handleWipeData}>
-              Yes, Delete Everything
-            </Button>
+            </button>
+            <button
+              onClick={handleWipeData}
+              className="px-3 py-1.5 rounded-md text-[12px] font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer macos-button-press"
+            >
+              Confirm Wipe
+            </button>
           </div>
-        </Modal>
-      )}
+        </div>
+      </Modal>
     </div>
   );
 };

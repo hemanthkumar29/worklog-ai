@@ -4,14 +4,29 @@
 
 @layer base {
   body {
-    @apply antialiased selection:bg-brand-500/25 selection:text-brand-700 dark:selection:text-brand-300;
+    @apply antialiased selection:bg-[#007AFF]/25 selection:text-[#007AFF] dark:selection:text-[#0A84FF];
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", -system-ui, "Helvetica Neue", sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+    -webkit-user-select: none;
   }
 }
 
-/* macOS Apple HIG Glassmorphism & Depth Tokens */
+/* macOS Apple HIG Native Vibrancy & Glassmorphism Tokens */
+.macos-window-canvas {
+  background: rgba(246, 248, 250, 0.75);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+}
+
+.dark .macos-window-canvas {
+  background: rgba(13, 17, 23, 0.75);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+}
+
 .macos-glass {
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(28px) saturate(190%);
@@ -20,7 +35,7 @@
 }
 
 .dark .macos-glass {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(22, 27, 34, 0.65);
   backdrop-filter: blur(28px) saturate(190%);
   -webkit-backdrop-filter: blur(28px) saturate(190%);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -28,39 +43,84 @@
 }
 
 .macos-sidebar {
-  background: rgba(248, 250, 252, 0.68);
+  background: rgba(243, 244, 246, 0.55);
   backdrop-filter: blur(36px) saturate(200%);
   -webkit-backdrop-filter: blur(36px) saturate(200%);
 }
 
 .dark .macos-sidebar {
-  background: rgba(11, 15, 26, 0.68);
+  background: rgba(10, 14, 20, 0.55);
   backdrop-filter: blur(36px) saturate(200%);
   -webkit-backdrop-filter: blur(36px) saturate(200%);
 }
 
+.macos-toolbar {
+  height: 52px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dark .macos-toolbar {
+  height: 52px;
+  background: rgba(18, 22, 30, 0.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .macos-popup-glass {
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(48px) saturate(210%);
-  -webkit-backdrop-filter: blur(48px) saturate(210%);
-  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(50px) saturate(220%);
+  -webkit-backdrop-filter: blur(50px) saturate(220%);
+  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .dark .macos-popup-glass {
-  background: rgba(15, 23, 42, 0.78);
-  backdrop-filter: blur(48px) saturate(210%);
-  -webkit-backdrop-filter: blur(48px) saturate(210%);
-  box-shadow: 0 35px 90px -15px rgba(0, 0, 0, 0.75), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 20, 30, 0.82);
+  backdrop-filter: blur(50px) saturate(220%);
+  -webkit-backdrop-filter: blur(50px) saturate(220%);
+  box-shadow: 0 35px 90px -15px rgba(0, 0, 0, 0.75), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .macos-card {
-  @apply rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm transition-all duration-150;
+  @apply rounded-xl border border-black/[0.06] dark:border-white/[0.08] bg-white/70 dark:bg-white/[0.04] backdrop-blur-md shadow-xs transition-all duration-150;
 }
 
 .macos-button-press {
-  @apply active:scale-[0.98] transition-transform duration-100;
+  @apply active:scale-[0.97] transition-transform duration-100;
+}
+
+/* macOS Native Controls */
+.macos-segmented {
+  @apply inline-flex p-0.5 rounded-lg bg-black/[0.05] dark:bg-white/[0.08] border border-black/[0.04] dark:border-white/[0.06];
+}
+
+.macos-segmented-item {
+  @apply px-3 py-1 rounded-md text-xs font-medium text-slate-600 dark:text-slate-300 transition-all cursor-pointer;
+}
+
+.macos-segmented-item-active {
+  @apply bg-white dark:bg-white/[0.18] text-slate-900 dark:text-white font-semibold shadow-xs;
+}
+
+.macos-input {
+  @apply rounded-md border border-black/15 dark:border-white/15 bg-white/90 dark:bg-black/30 px-3 py-1.5 text-[13px] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 focus:border-[#007AFF] transition-all;
+}
+
+.macos-btn-primary {
+  @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-white rounded-md bg-[#007AFF] hover:bg-[#0071E3] active:bg-[#0062C4] shadow-xs cursor-pointer macos-button-press border border-white/20;
+}
+
+.macos-btn-secondary {
+  @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-slate-700 dark:text-slate-200 rounded-md bg-black/[0.05] hover:bg-black/[0.09] dark:bg-white/[0.08] dark:hover:bg-white/[0.14] border border-black/10 dark:border-white/10 shadow-2xs cursor-pointer macos-button-press;
+}
+
+.macos-kbd {
+  @apply px-1.5 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.1] border border-black/10 dark:border-white/10 text-[10px] font-mono text-slate-500 dark:text-slate-400;
 }
 
 /* Custom macOS minimal scrollbars */

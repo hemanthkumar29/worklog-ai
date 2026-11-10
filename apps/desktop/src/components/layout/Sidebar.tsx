@@ -6,7 +6,6 @@ import {
   FileSpreadsheet,
   BarChart3,
   Settings,
-  ShieldCheck,
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -46,30 +45,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   ];
 
   return (
-    <aside className="w-64 border-r border-slate-200/70 dark:border-slate-800/80 macos-sidebar flex flex-col shrink-0 select-none">
+    <aside className="w-60 border-r border-black/[0.08] dark:border-white/[0.08] macos-sidebar flex flex-col shrink-0 select-none">
       {/* Native macOS Titlebar / Traffic Light Drag Region */}
       <div
-        className="pt-9 pb-3 px-5 flex items-center gap-3 cursor-default"
+        className="pt-8 pb-3 px-4 flex items-center gap-2.5 cursor-default"
         data-tauri-drag-region
       >
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 via-brand-500 to-sky-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
-          <Sparkles className="w-4 h-4" />
+        <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-[#007AFF] to-[#5856D6] flex items-center justify-center text-white shadow-xs">
+          <Sparkles className="w-3.5 h-3.5" />
         </div>
         <div className="leading-tight">
-          <h1 className="font-bold text-sm tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="font-bold text-[13px] tracking-tight text-slate-900 dark:text-slate-100">
             WorkLog AI
           </h1>
-          <span className="text-[10px] font-semibold tracking-wider text-brand-600 dark:text-brand-400">
-            Offline Edition
+          <span className="text-[10px] font-medium tracking-wide text-slate-400 dark:text-slate-400">
+            macOS Edition
           </span>
         </div>
       </div>
 
       {/* Navigation Sections */}
-      <nav className="flex-1 px-3 py-2 space-y-4 overflow-y-auto">
+      <nav className="flex-1 px-2.5 py-1 space-y-3.5 overflow-y-auto">
         {sections.map((section) => (
-          <div key={section.title} className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400/90 dark:text-slate-500 uppercase tracking-widest px-3">
+          <div key={section.title} className="space-y-0.5">
+            <span className="text-[10px] font-semibold text-slate-400/90 dark:text-slate-400 uppercase tracking-wider px-2.5">
               {section.title}
             </span>
             <div className="space-y-0.5 pt-0.5">
@@ -81,23 +80,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
                     key={item.id}
                     onClick={() => onTabChange(item.id)}
                     className={clsx(
-                      "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer macos-button-press",
+                      "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-all duration-100 cursor-pointer macos-button-press",
                       isActive
-                        ? "bg-brand-500/15 dark:bg-brand-400/20 text-brand-700 dark:text-brand-300 font-semibold shadow-sm"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
+                        ? "bg-[#007AFF] text-white font-semibold shadow-xs dark:bg-[#007AFF]/25 dark:text-[#0A84FF] dark:border dark:border-[#007AFF]/35"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.08] hover:text-slate-900 dark:hover:text-white"
                     )}
                   >
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                       <Icon
                         className={clsx(
                           "w-4 h-4 shrink-0 transition-colors",
-                          isActive ? "text-brand-600 dark:text-brand-400" : "text-slate-400"
+                          isActive
+                            ? "text-white dark:text-[#0A84FF]"
+                            : "text-slate-400 dark:text-slate-400"
                         )}
                       />
                       <span>{item.label}</span>
                     </div>
                     {item.shortcut && (
-                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 opacity-60">
+                      <span
+                        className={clsx(
+                          "text-[10px] font-mono",
+                          isActive
+                            ? "text-white/80 dark:text-[#0A84FF]/80"
+                            : "text-slate-400 dark:text-slate-400 opacity-60"
+                        )}
+                      >
                         {item.shortcut}
                       </span>
                     )}
@@ -110,14 +118,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
       </nav>
 
       {/* Privacy Guarantee Pill */}
-      <div className="p-3.5 border-t border-slate-200/60 dark:border-slate-800/80">
-        <div className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
-          <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+      <div className="p-3 border-t border-black/[0.06] dark:border-white/[0.06]">
+        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.05] dark:border-white/[0.06] text-slate-600 dark:text-slate-300">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
           <div className="text-[11px] leading-tight">
-            <p className="font-semibold">Local Privacy Active</p>
-            <p className="text-emerald-600/90 dark:text-emerald-400/90 text-[10px]">
-              Zero telemetry • 100% Offline
-            </p>
+            <span className="font-semibold text-slate-800 dark:text-slate-200">100% Offline</span>
+            <span className="text-slate-400 dark:text-slate-400 block text-[10px]">Zero Cloud Telemetry</span>
           </div>
         </div>
       </div>
