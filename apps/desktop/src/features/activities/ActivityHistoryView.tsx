@@ -190,7 +190,7 @@ export const ActivityHistoryView: React.FC = () => {
       )}
 
       {/* Filter Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
         {/* Search */}
         <div className="relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
@@ -244,7 +244,7 @@ export const ActivityHistoryView: React.FC = () => {
       </div>
 
       {/* Activity Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         {filteredActivities.length === 0 ? (
           <div className="p-12 text-center text-slate-500 dark:text-slate-400">
             <p className="text-sm font-semibold">No activities found</p>

@@ -155,7 +155,7 @@ export const ProjectListView: React.FC = () => {
         {filteredProjects.map((proj) => (
           <Card
             key={proj.id}
-            className="flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-xs"
+            className="flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-sm"
           >
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-2">

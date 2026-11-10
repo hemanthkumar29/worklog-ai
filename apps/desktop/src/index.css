@@ -4,14 +4,66 @@
 
 @layer base {
   body {
-    @apply antialiased selection:bg-brand-500/20 selection:text-brand-600 dark:selection:text-brand-300;
+    @apply antialiased selection:bg-brand-500/25 selection:text-brand-700 dark:selection:text-brand-300;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom scrollbars for clean desktop appearance */
+/* macOS Apple HIG Glassmorphism & Depth Tokens */
+.macos-glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.dark .macos-glass {
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.macos-sidebar {
+  background: rgba(248, 250, 252, 0.75);
+  backdrop-filter: blur(30px) saturate(190%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+}
+
+.dark .macos-sidebar {
+  background: rgba(10, 15, 28, 0.75);
+  backdrop-filter: blur(30px) saturate(190%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+}
+
+.macos-popup-glass {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.dark .macos-popup-glass {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.macos-card {
+  @apply rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm transition-all duration-150;
+}
+
+.macos-button-press {
+  @apply active:scale-[0.98] transition-transform duration-100;
+}
+
+/* Custom macOS minimal scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -19,10 +71,26 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: rgba(148, 163, 184, 0.45);
+}
+
+/* Smooth Apple-style animations */
+@keyframes appleFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-apple-in {
+  animation: appleFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

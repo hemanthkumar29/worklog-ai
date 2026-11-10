@@ -40,10 +40,9 @@ export const MinimalPopupView: React.FC = () => {
   useEffect(() => {
     loadProjects();
     loadConnections();
-    // Auto focus textarea when popup opens
     setTimeout(() => {
       textareaRef.current?.focus();
-    }, 100);
+    }, 120);
   }, [loadProjects, loadConnections]);
 
   // Global keydown listeners inside popup
@@ -78,7 +77,6 @@ export const MinimalPopupView: React.FC = () => {
     try {
       await tauriApi.hideQuickCapture();
     } catch {
-      // In dev browser fallback
       window.close();
     }
   };
@@ -167,7 +165,6 @@ export const MinimalPopupView: React.FC = () => {
       connections[0];
 
     if (!connection || !connection.templates || connection.templates.length === 0) {
-      // Fallback to local save if no Excel template configured yet
       await handleSaveOnly();
       return;
     }
@@ -203,7 +200,7 @@ export const MinimalPopupView: React.FC = () => {
     } catch (err: any) {
       setStatusMessage({
         type: "error",
-        text: "Saved locally. Excel file may be open or locked.",
+        text: "Saved locally. Excel file may be locked by another application.",
       });
     }
   };
@@ -218,19 +215,19 @@ export const MinimalPopupView: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col justify-between p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl text-slate-900 dark:text-slate-100 font-sans border border-slate-200/90 dark:border-slate-800 shadow-2xl rounded-2xl select-none overflow-hidden">
+    <div className="h-screen w-screen flex flex-col justify-between p-4.5 macos-popup-glass text-slate-900 dark:text-slate-100 font-sans rounded-2xl select-none overflow-hidden animate-apple-in">
       {/* Top Header / Drag Region */}
       <div
-        className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/80 cursor-default"
+        className="flex items-center justify-between pb-3 border-b border-slate-200/50 dark:border-white/10 cursor-default"
         data-tauri-drag-region
       >
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-brand-600 flex items-center justify-center text-white shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-brand-600 to-sky-400 flex items-center justify-center text-white shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
           </div>
           <span className="text-xs font-bold tracking-tight">WorkLog AI</span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
-            Quick Capture
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-500 dark:text-slate-400">
+            Spotlight Capture
           </span>
         </div>
 
@@ -239,11 +236,11 @@ export const MinimalPopupView: React.FC = () => {
           <select
             value={activeProjectId || ""}
             onChange={(e) => setActiveProject(e.target.value)}
-            className="text-xs font-medium bg-slate-100 dark:bg-slate-800 border-none rounded-lg px-2.5 py-1 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500 cursor-pointer"
+            className="text-xs font-medium bg-slate-200/50 dark:bg-slate-800/60 border border-slate-300/40 dark:border-white/10 rounded-lg px-2.5 py-1 text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer"
           >
             {projects.length === 0 && <option value="">Default Project</option>}
             {projects.map((p) => (
-              <option key={p.id} value={p.id}>
+              <option key={p.id} value={p.id} className="dark:bg-slate-900">
                 {p.name}
               </option>
             ))}
@@ -253,7 +250,7 @@ export const MinimalPopupView: React.FC = () => {
           <button
             onClick={handleOpenDashboard}
             title="Open Full Dashboard (⌘O)"
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors macos-button-press"
           >
             <ExternalLink className="w-3.5 h-3.5" />
           </button>
@@ -262,7 +259,7 @@ export const MinimalPopupView: React.FC = () => {
           <button
             onClick={handleClose}
             title="Dismiss (Esc)"
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors macos-button-press"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -270,61 +267,75 @@ export const MinimalPopupView: React.FC = () => {
       </div>
 
       {/* Main Content Body */}
-      <div className="flex-1 py-3 overflow-y-auto">
+      <div className="flex-1 py-3.5 overflow-y-auto">
         {!hasEnhanced ? (
           <div className="flex flex-col h-full justify-between">
             <textarea
               ref={textareaRef}
               rows={4}
-              placeholder="Describe what you worked on today... (e.g. Tested Salesforce duplicate rules, fixed trigger flow bug, updated unit tests - 2.5 hrs)"
+              placeholder="What did you work on today? (e.g. Tested Salesforce duplicate rules, investigated trigger flow issues, created test records - 2.5 hrs)"
               value={rawInput}
               onChange={(e) => setRawInput(e.target.value)}
-              className="w-full h-full resize-none bg-transparent text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none leading-relaxed"
+              className="w-full h-full resize-none bg-transparent text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none leading-relaxed font-sans"
             />
 
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-400">
+            <div className="flex items-center justify-between pt-2.5 border-t border-slate-200/50 dark:border-white/10 text-[11px] text-slate-400">
               <div className="flex gap-2">
-                <span className="hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer" onClick={() => setRawInput("Investigated bug and fixed failing test suite in staging - 2 hrs")}>
+                <span
+                  className="hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer transition-colors"
+                  onClick={() => setRawInput("Investigated bug and fixed failing test suite in staging - 2 hrs")}
+                >
                   + Bug Fix
                 </span>
-                <span className="hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer" onClick={() => setRawInput("Architected and implemented new feature API endpoints with documentation - 3 hrs")}>
+                <span
+                  className="hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer transition-colors"
+                  onClick={() => setRawInput("Architected and implemented new feature API endpoints with documentation - 3 hrs")}
+                >
                   + Feature
                 </span>
-                <span className="hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer" onClick={() => setRawInput("Team sprint planning, backlog grooming, and architecture sync - 1.5 hrs")}>
+                <span
+                  className="hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer transition-colors"
+                  onClick={() => setRawInput("Sprint planning, technical review, and backlog grooming - 1.5 hrs")}
+                >
                   + Meeting
                 </span>
               </div>
-              <span>Press <kbd className="font-mono font-bold">⌘+Enter</kbd> to Enhance</span>
+              <span className="flex items-center gap-1">
+                <span>Enhance</span>
+                <kbd className="px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-800 font-mono font-bold text-[10px] text-slate-600 dark:text-slate-300">
+                  ⌘↵
+                </kbd>
+              </span>
             </div>
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-3 animate-apple-in">
             {/* Title Input */}
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Structured Activity Title"
-              className="w-full text-xs font-bold bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full text-xs font-bold bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200/80 dark:border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
 
             {/* Metadata Pills */}
-            <div className="flex flex-wrap items-center gap-2 text-[11px]">
-              <span className="px-2 py-0.5 rounded-md bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-300 font-semibold border border-brand-200 dark:border-brand-800">
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+              <span className="px-2.5 py-0.8 rounded-md bg-brand-500/15 text-brand-700 dark:text-brand-300 font-semibold border border-brand-500/20">
                 {activityType}
               </span>
-              <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800">
+              <span className="px-2.5 py-0.8 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/20">
                 {status}
               </span>
               {timeSpentMinutes && (
-                <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">
+                <span className="px-2.5 py-0.8 rounded-md bg-slate-200/60 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium">
                   {(timeSpentMinutes / 60).toFixed(1)} hrs
                 </span>
               )}
               {technologies.map((t, idx) => (
                 <span
                   key={idx}
-                  className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium"
+                  className="px-2 py-0.8 rounded-md bg-slate-200/40 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 font-medium border border-slate-200/50 dark:border-white/5"
                 >
                   {t}
                 </span>
@@ -332,7 +343,7 @@ export const MinimalPopupView: React.FC = () => {
             </div>
 
             {/* Description Preview */}
-            <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed bg-slate-50 dark:bg-slate-800/40 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+            <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed bg-slate-100/40 dark:bg-slate-800/30 p-2.5 rounded-lg border border-slate-200/50 dark:border-white/5">
               {description}
             </p>
           </div>
@@ -342,26 +353,26 @@ export const MinimalPopupView: React.FC = () => {
       {/* Status Banner */}
       {statusMessage && (
         <div
-          className={`py-1.5 px-3 rounded-lg text-xs font-medium flex items-center gap-2 mb-2 ${
+          className={`py-1.5 px-3 rounded-lg text-xs font-medium flex items-center gap-2 mb-2 animate-apple-in ${
             statusMessage.type === "success"
-              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
-              : "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
+              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20"
+              : "bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/20"
           }`}
         >
           {statusMessage.type === "success" ? (
-            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
           ) : (
-            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            <AlertCircle className="w-3.5 h-3.5 shrink-0 text-rose-600 dark:text-rose-400" />
           )}
           <span className="truncate">{statusMessage.text}</span>
         </div>
       )}
 
       {/* Action Footer */}
-      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+      <div className="pt-3 border-t border-slate-200/50 dark:border-white/10 flex items-center justify-between">
         <button
           onClick={handleClose}
-          className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-medium"
+          className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-medium macos-button-press cursor-pointer"
         >
           Dismiss (Esc)
         </button>
@@ -371,40 +382,42 @@ export const MinimalPopupView: React.FC = () => {
             <button
               onClick={handleEnhance}
               disabled={!rawInput.trim() || isEnhancing}
-              className="px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50"
+              className="px-4 py-1.5 rounded-lg bg-gradient-to-b from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-40 cursor-pointer macos-button-press"
             >
               {isEnhancing ? (
                 <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <Sparkles className="w-3.5 h-3.5" />
               )}
-              <span>Enhance (⌘+Enter)</span>
+              <span>Enhance</span>
+              <kbd className="px-1 py-0.2 rounded bg-white/20 text-[10px] font-mono">⌘↵</kbd>
             </button>
           ) : (
             <>
               <button
                 onClick={() => setHasEnhanced(false)}
-                className="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition-colors"
+                className="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-medium transition-colors macos-button-press"
               >
                 Re-edit
               </button>
               <button
                 onClick={handleSaveOnly}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors macos-button-press cursor-pointer"
               >
                 Save Locally
               </button>
               <button
                 onClick={handleSaveAndSync}
                 disabled={isSyncing}
-                className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
+                className="px-4 py-1.5 rounded-lg bg-gradient-to-b from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer macos-button-press"
               >
                 {isSyncing ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <FileSpreadsheet className="w-3.5 h-3.5" />
                 )}
-                <span>Sync & Close (⌘S)</span>
+                <span>Sync to Excel</span>
+                <kbd className="px-1 py-0.2 rounded bg-white/20 text-[10px] font-mono">⌘S</kbd>
               </button>
             </>
           )}

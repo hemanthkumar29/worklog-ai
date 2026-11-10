@@ -183,7 +183,7 @@ export const SettingsView: React.FC = () => {
             </p>
             <p className="text-slate-500">Opens the capture window anywhere in macOS or Windows.</p>
           </div>
-          <kbd className="px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold shadow-2xs">
+          <kbd className="px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold shadow-sm">
             ⌘+Shift+Space / Ctrl+Shift+Space
           </kbd>
         </div>

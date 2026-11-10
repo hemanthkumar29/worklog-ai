@@ -48,7 +48,7 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-xs transition-opacity animate-apple-in"
         onClick={onClose}
       />
 
@@ -56,17 +56,17 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         className={twMerge(
           clsx(
-            "relative w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 overflow-hidden z-10 max-h-[90vh] flex flex-col transition-all",
+            "relative w-full rounded-2xl macos-popup-glass border border-white/60 dark:border-white/10 shadow-2xl p-6 overflow-hidden z-10 max-h-[90vh] flex flex-col transition-all animate-apple-in",
             sizeClasses[size]
           )
         )}
       >
         {/* Header */}
         {(title || description) && (
-          <div className="flex items-start justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-start justify-between pb-4 border-b border-slate-200/60 dark:border-slate-800/80">
             <div>
               {title && (
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100">
                   {title}
                 </h3>
               )}
@@ -78,9 +78,9 @@ export const Modal: React.FC<ModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors macos-button-press cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         )}

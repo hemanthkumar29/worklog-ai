@@ -49,3 +49,4 @@ pub fn hide_dashboard(app: AppHandle) -> Result<(), String> {
     }
     Ok(())
 }
+

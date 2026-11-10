@@ -41,6 +41,39 @@ export const App: React.FC = () => {
     }
   }, [loadProfile, loadProjects, loadActivities, loadConnections]);
 
+  // Native macOS Keyboard Navigation (⌘1..⌘6, ⌘,, ⌘N)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key === "1") {
+          e.preventDefault();
+          setActiveTab("capture");
+        } else if (e.key === "2") {
+          e.preventDefault();
+          setActiveTab("activities");
+        } else if (e.key === "3") {
+          e.preventDefault();
+          setActiveTab("projects");
+        } else if (e.key === "4") {
+          e.preventDefault();
+          setActiveTab("excel");
+        } else if (e.key === "5") {
+          e.preventDefault();
+          setActiveTab("reports");
+        } else if (e.key === "6" || e.key === ",") {
+          e.preventDefault();
+          setActiveTab("settings");
+        } else if (e.key.toLowerCase() === "n") {
+          e.preventDefault();
+          setActiveTab("capture");
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleToggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);

@@ -251,7 +251,7 @@ export const ExcelIntegrationView: React.FC = () => {
                   onClick={() => setSelectedSheet(sheet.name)}
                   className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium ${
                     selectedSheetName === sheet.name
-                      ? "bg-brand-50 dark:bg-brand-950 border-brand-500 text-brand-700 dark:text-brand-300 shadow-2xs"
+                      ? "bg-brand-50 dark:bg-brand-950 border-brand-500 text-brand-700 dark:text-brand-300 shadow-sm"
                       : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                   }`}
                 >
