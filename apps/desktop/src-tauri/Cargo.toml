@@ -1,6 +1,6 @@
 [package]
 name = "worklog-ai"
-version = "1.0.0"
+version = "1.0.1"
 description = "WorkLog AI - Fully Offline Desktop Productivity & Work Documentation"
 authors = ["WorkLog AI Team"]
 edition = "2021"
