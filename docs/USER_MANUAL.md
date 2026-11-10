@@ -39,16 +39,26 @@ Click **Finish Setup** to enter your workspace.
 
 ---
 
-## 3. Quick Capture Workflow
+## 3. Quick Capture Workflow & Spotlight Mode
 
-The Quick Capture interface is designed for minimal keystrokes and fast daily entry.
+The Quick Capture interface is designed for minimal keystrokes, fast daily entry, and zero disruption to your flow.
 
-### Step-by-Step Entry:
-1. Press the global shortcut (`Cmd + Shift + Space` on macOS or `Ctrl + Shift + Space` on Windows) or click **Quick Capture** in the sidebar.
+### Spotlight Floating Quick Capture
+WorkLog AI features a floating Quick Capture popup inspired by macOS Spotlight and Raycast:
+1. Press the global shortcut `Cmd + Shift + Space` (on macOS) or `Ctrl + Shift + Space` (on Windows) from any application.
+2. The sleek, translucent Quick Capture card floats over your active windows with focus immediately inside the input field.
+3. Enter your raw notes and use the native shortcuts:
+   * **`Cmd + Enter`**: Enhance notes with local AI.
+   * **`Cmd + S`**: Save record locally and sync directly to Excel.
+   * **`Cmd + O`**: Open the full application dashboard.
+   * **`Escape`**: Instantly dismiss and hide the popup.
+
+### Step-by-Step Entry in Main Dashboard:
+1. Navigate to Quick Capture via the sidebar or press `Cmd + 1`.
 2. Select your active project and verify the date (defaults to today).
 3. In the text area, describe what you did today in plain English. For example:
    > *"Spent 2.5 hours investigating a memory leak in the payment webhook consumer. Discovered unclosed database connections during connection timeouts. Patched the connection pool and verified in staging."*
-4. Click **Enhance with Local AI**:
+4. Click **Enhance with Local AI** (or press `Cmd + Enter`):
    - The AI engine generates a structured title: `Payment Webhook: Memory Leak Investigation`.
    - Categorizes it as `BUG_FIXING`.
    - Infers status as `COMPLETED`.
@@ -59,7 +69,23 @@ The Quick Capture interface is designed for minimal keystrokes and fast daily en
      - *Patched connection pool and verified in staging*
    - Detects technologies: `Database`, `Staging`.
 5. Review the structured card. You can edit any field, add/remove tasks, or adjust time spent.
-6. Click **Approve & Sync to Excel** to immediately record the activity locally and append the row to your company's Excel spreadsheet.
+6. Click **Approve & Sync to Excel** (or press `Cmd + S`) to immediately record the activity locally and append the row to your company's Excel spreadsheet.
+
+### macOS-Native Keyboard Shortcuts
+
+| Key Combination | Action |
+|---|---|
+| `Cmd + Shift + Space` | Toggle Spotlight Quick Capture popup from any app |
+| `Cmd + 1` | Switch to Quick Capture |
+| `Cmd + 2` | Switch to Activity History |
+| `Cmd + 3` | Switch to Projects |
+| `Cmd + 4` | Switch to Excel Integration |
+| `Cmd + 5` | Switch to Reports & Analytics |
+| `Cmd + 6` or `Cmd + ,` | Open Settings & Preferences |
+| `Cmd + N` | New Quick Capture entry |
+| `Cmd + Enter` | Enhance notes with local AI |
+| `Cmd + S` | Save & sync to Excel |
+| `Escape` | Dismiss popup or close modal |
 
 ---
 

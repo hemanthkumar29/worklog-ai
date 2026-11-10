@@ -126,3 +126,4 @@ ls -lh "${DIST_DIR}/${DMG_NAME}"
 hdiutil imageinfo "${DIST_DIR}/${DMG_NAME}" | grep -E "Format|Checksum|Total Non-Empty Bytes" || true
 
 echo "=== Successfully built ${DIST_DIR}/${DMG_NAME} ==="
+

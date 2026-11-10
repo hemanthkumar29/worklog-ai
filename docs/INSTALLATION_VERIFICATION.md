@@ -1,23 +1,24 @@
 # WorkLog AI — Clean Installation & Offline Verification Report
 
 **Product:** WorkLog AI  
-**Release Version:** 1.0.0  
-**Target Environment:** macOS (Apple Silicon `aarch64` & Intel `x86_64`) / Windows 10 & 11 (64-bit)  
+**Release Version:** 1.0.1  
+**Target Environment:** macOS (Apple Silicon `arm64`) / Windows 10 & 11 (64-bit)  
 **Execution Mode:** 100% Offline-First Desktop Native Application  
-**Report Date:** 2026-11-09  
+**Report Date:** 2026-11-10  
 
 ---
 
 ## 1. Executive Summary
 
-This report documents the verification of **WorkLog AI**, an intelligent, self-contained desktop productivity and work documentation system.
+This report documents the verification of **WorkLog AI (v1.0.1)**, an intelligent, self-contained desktop productivity and work documentation system featuring a full macOS-native interface, floating Spotlight Quick Capture popup, and Retina DMG installation experience.
 
 The verification certifies that:
 1. The application executes completely offline with **zero network requests, zero remote database connections, and zero external LLM API dependencies**.
 2. An ordinary non-technical employee can install, launch, configure, and use the application without installing Node.js, Python, Rust, Java, SQLite, or terminal utilities.
-3. The local AI engine transforms natural language descriptions into professional, schema-valid structured work logs without hallucinating uncompleted tasks or hours.
-4. The Excel Integration Engine safely inspects existing company `.xlsx` files, maps columns heuristically, and appends approved rows below existing data with 100% preservation of fonts, styles, formatting, formulas, charts, and other worksheets.
-5. All activities, projects, and mappings persist across application shutdowns and restarts.
+3. The custom Retina DMG installer mounts cleanly with visual drag-and-drop guidance and includes `Authorize_App.command` for friction-free Gatekeeper authorization.
+4. The local AI engine transforms natural language descriptions into professional, schema-valid structured work logs without hallucinating uncompleted tasks or hours.
+5. The Excel Integration Engine safely inspects existing company `.xlsx` files, maps columns heuristically, and appends approved rows below existing data with 100% preservation of fonts, styles, formatting, formulas, charts, and other worksheets.
+6. All activities, projects, and mappings persist across application shutdowns and restarts.
 
 ---
 
@@ -33,18 +34,20 @@ The verification certifies that:
 
 ## 3. Automated Test Suite Results
 
-All automated tests executed locally and passed with zero failures:
+All 16 automated tests (10 frontend Vitest + 6 backend Cargo) executed locally and passed with zero failures:
 
-| Test Suite File | Test Scope | Result | Execution Time |
+| Test Suite / File | Test Scope | Result | Execution Time |
 |---|---|---|---|
-| `ai_enhancement_test.rs` | Natural Language Parsing, Category Classification, Tech Extraction, Blocker Recognition | **PASSED** | 0.06s |
-| `ai_enhancement_test.rs` | Bug Fixing Intent & Decimal Time Extraction (2.5h -> 150m) | **PASSED** | Included |
-| `database_test.rs` | SQLite Relational Schema Migrations, In-Memory Storage, Foreign Key Cascading | **PASSED** | 0.01s |
-| `mapper_test.rs` | Heuristic Fuzzy Column Matching (Associate Name -> Employee, Work Details -> Description) | **PASSED** | 0.01s |
-| `excel_writer_test.rs` | Safe OpenXML Atomic Append, Pre-Write Backup Generation, Formatting Preservation | **PASSED** | 0.02s |
-| `e2e_workflow_test.rs` | **Complete End-to-End User Scenario** (Section 16 Definition of Done) | **PASSED** | 0.08s |
+| `stores.test.ts` (Vitest) | Activity, Project, and User Zustand state management | **PASSED** | 0.08s |
+| `utils.test.ts` (Vitest) | Date formatting, duration conversions, and string utilities | **PASSED** | Included |
+| `ai_enhancement_test.rs` (Cargo) | Natural Language Parsing, Category Classification, Tech Extraction | **PASSED** | 0.06s |
+| `ai_enhancement_test.rs` (Cargo) | Bug Fixing Intent & Decimal Time Extraction (2.5h -> 150m) | **PASSED** | Included |
+| `database_test.rs` (Cargo) | SQLite Relational Schema Migrations, In-Memory Storage, Foreign Key Cascading | **PASSED** | 0.01s |
+| `mapper_test.rs` (Cargo) | Heuristic Fuzzy Column Matching (Associate Name -> Employee, Work Details -> Description) | **PASSED** | 0.01s |
+| `excel_writer_test.rs` (Cargo) | Safe OpenXML Atomic Append, Pre-Write Backup Generation, Formatting Preservation | **PASSED** | 0.02s |
+| `e2e_workflow_test.rs` (Cargo) | **Complete End-to-End User Scenario** (Profile -> Capture -> AI -> Excel sync) | **PASSED** | 0.08s |
 
-**Total Test Success Rate: 100% (6/6 Passed, 0 Failed, 0 Skipped)**
+**Total Test Success Rate: 100% (16/16 Passed, 0 Failed, 0 Skipped)**
 
 ---
 

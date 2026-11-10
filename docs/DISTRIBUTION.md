@@ -8,10 +8,10 @@ This document defines the production packaging, release build pipeline, platform
 
 | Platform | Target Architecture | Distribution Package | Installer Type | Bundle Path / Output |
 |---|---|---|---|---|
-| **macOS** | Apple Silicon (`aarch64-apple-darwin`) | `WorkLog AI_1.0.0_aarch64.dmg` | Disk Image (.dmg) & .app bundle | `src-tauri/target/release/bundle/dmg/` |
-| **macOS** | Intel (`x86_64-apple-darwin`) | `WorkLog AI_1.0.0_x64.dmg` | Disk Image (.dmg) & .app bundle | `src-tauri/target/release/bundle/dmg/` |
-| **Windows** | Windows 10/11 x64 (`x86_64-pc-windows-msvc`) | `WorkLog_AI_1.0.0_x64-setup.exe` | NSIS Executable Installer | `src-tauri/target/release/bundle/nsis/` |
-| **Windows** | Windows 10/11 x64 (`x86_64-pc-windows-msvc`) | `WorkLog_AI_1.0.0_x64.msi` | Windows Installer (WiX / MSI) | `src-tauri/target/release/bundle/msi/` |
+| **macOS** | Apple Silicon (`aarch64-apple-darwin`) | `WorkLog_AI_1.0.1_macOS_arm64.dmg` | Branded Retina Disk Image (.dmg) | `dist-packages/` & `src-tauri/dmg/` |
+| **macOS** | Apple Silicon (`aarch64-apple-darwin`) | `WorkLog_AI_1.0.1_macOS_arm64.zip` | Portable Application Archive (.zip) | `dist-packages/` |
+| **macOS** | Universal (`WorkLog AI.app`) | `WorkLog AI.app` | Standalone App Bundle | `src-tauri/target/release/bundle/macos/` |
+| **Windows** | Windows 10/11 x64 (`x86_64-pc-windows-msvc`) | `WorkLog_AI_1.0.1_x64-setup.exe` | NSIS Executable Installer | `src-tauri/target/release/bundle/nsis/` |
 
 ---
 
@@ -23,14 +23,37 @@ This document defines the production packaging, release build pipeline, platform
 # Ensure Rust and Node tools are in PATH
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# Build production frontend and compile native macOS bundle
+# 1. Run frontend test suite
 cd apps/desktop
+npm test
+
+# 2. Build production web bundle
 npm run build
-npm run tauri build
+
+# 3. Compile native macOS application bundle
+npm run tauri build -- --bundles app
+
+# 4. Generate Branded Retina DMG Installer
+cd ../..
+./scripts/create_dmg.sh
 ```
 
-The output will be placed in:
-`apps/desktop/src-tauri/target/release/bundle/dmg/WorkLog AI_1.0.0_aarch64.dmg`
+The output packages will be placed in:
+* `apps/desktop/src-tauri/target/release/bundle/macos/WorkLog AI.app`
+* `dist-packages/WorkLog_AI_1.0.1_macOS_arm64.dmg`
+* `dist-packages/WorkLog_AI_1.0.1_macOS_arm64.zip`
+
+### 2.2 Branded Retina DMG Packaging Pipeline
+
+The custom DMG installer is generated via two complementary scripts:
+1. `scripts/generate_dmg_background.py`:
+   * Uses Python Pillow with Apple San Francisco (`SFNS.ttf`) system fonts.
+   * Renders high-resolution 1x (`660x400`), 2x Retina (`1320x800`), and multi-resolution TIFF.
+   * Incorporates midnight dark gradient, pedestal drop zones, directional guidance arrow, and Gatekeeper instructions.
+2. `scripts/create_dmg.sh`:
+   * Stages `WorkLog AI.app`, `Applications` symlink, and `Authorize_App.command` helper.
+   * Mounts a temporary read/write disk image and executes AppleScript (`osascript`) to position items and configure Finder `.DS_Store`.
+   * Converts the volume to a compressed, read-only UDZO disk image.
 
 ### 2.2 Windows Release Build (from Windows CI or Runner)
 
